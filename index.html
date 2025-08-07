@@ -16,6 +16,7 @@
             --accent-red: #fc8181; /* Rouge clair chaud pour les accents */
             --accent-green: #68d391; /* Vert clair chaud pour les accents */
             --accent-purple: #a78bfa; /* Violet clair chaud pour les accents */
+            --accent-pink: #ed64a6; /* Un rose vif pour le titre */
             --card-bg: #2d3748; /* Fond légèrement plus clair pour les cartes/formulaires */
             --border-color: #4a5568; /* Couleur des bordures et séparateurs */
             --progress-track: #4a5568; /* Couleur de la piste des barres de progression */
@@ -126,6 +127,11 @@
             padding-bottom: 10px;
         }
 
+        /* Style spécifique pour le titre rose */
+        h3.pink-title {
+            color: var(--accent-pink);
+        }
+
         /* Styles du formulaire */
         .form-group {
             margin-bottom: 15px;
@@ -214,25 +220,62 @@
         .module-section {
             background-color: var(--bg-dark); /* Fond plus foncé pour les cartes de module */
             border-radius: 10px;
-            padding: 20px;
+            padding: 0; /* Supprime le padding pour le header et content */
             margin-bottom: 20px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden; /* Pour que les coins arrondis fonctionnent avec le contenu replié */
         }
 
-        .module-section h4 {
-            color: var(--accent-red); /* Couleur vibrante pour les titres de module */
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.3em;
+        .module-header {
             display: flex;
             align-items: center;
-            justify-content: space-between; /* Espace entre le titre et le pourcentage */
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: var(--card-bg); /* Fond du header de module */
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            font-size: 1.3em;
+            color: var(--accent-red); /* Couleur vibrante pour les titres de module */
+            font-weight: bold;
+            transition: background-color 0.3s ease;
         }
 
-        .module-section h4 .module-progress-text {
+        .module-header:hover {
+            background-color: #3b485c; /* Légèrement plus clair au survol */
+        }
+
+        .module-header .module-progress-text {
             font-size: 0.9em;
             color: var(--text-light);
             opacity: 0.9;
+            margin-left: 10px; /* Espace entre le titre et le pourcentage */
+        }
+
+        .module-header .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .module-section.collapsed .toggle-icon {
+            transform: rotate(-90deg); /* Flèche vers la droite quand replié */
+        }
+
+        .module-content {
+            padding: 20px;
+            padding-top: 0; /* Pas de padding en haut car le header a déjà un padding */
+            display: block; /* Visible par default */
+            transition: max-height 0.5s ease-out, opacity 0.5s ease-out; /* Animation pour le dépliage */
+            max-height: 1000px; /* Grande valeur pour l'état déplié */
+            opacity: 1;
+        }
+
+        .module-section.collapsed .module-content {
+            max-height: 0; /* Cache le contenu en repliant */
+            opacity: 0;
+            overflow: hidden;
+            padding-top: 0; /* S'assure qu'il n'y a pas de padding résiduel */
+            padding-bottom: 0;
         }
 
         .module-progress-bar-container {
@@ -295,6 +338,40 @@
             color: var(--text-light);
         }
 
+        /* Bouton "Retour en haut" */
+        #scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--accent-orange);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 2em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0; /* Caché par défaut */
+            transform: translateY(20px);
+            z-index: 1000;
+        }
+
+        #scroll-to-top.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #scroll-to-top:hover {
+            background-color: #fbd38d; /* Légèrement plus clair au survol */
+            transform: translateY(-5px);
+        }
+
+
         /* Ajustements responsifs pour les petits écrans */
         @media (max-width: 768px) {
             .app-container {
@@ -318,6 +395,14 @@
 
             .form-group input {
                 width: calc(100% - 20px); /* Ajustement pour les inputs */
+            }
+
+            #scroll-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.8em;
             }
         }
 
@@ -349,6 +434,18 @@
             <!-- Section Accueil -->
             <section id="home-content" class="tab-content active">
                 <h2>Vos Informations Personnelles & Progression Globale 🎯</h2>
+
+                <h3 class="pink-title">Progression par Bloc :</h3>
+                <div id="block-overall-progress" class="block-progress-summary">
+                    <!-- Les résumés de progression par bloc seront insérés ici par JavaScript -->
+                </div>
+
+                <h3>Progression Globale du Bachelor :</h3>
+                <div class="progress-container">
+                    <div id="overall-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                    <span id="overall-progress-text" class="progress-text">0%</span>
+                </div>
+
                 <form id="user-info-form">
                     <div class="form-group">
                         <label for="lastName">Nom :</label>
@@ -379,17 +476,6 @@
                         <input type="date" id="resultsDate">
                     </div>
                 </form>
-
-                <h3>Progression Globale du Bachelor :</h3>
-                <div class="progress-container">
-                    <div id="overall-progress-bar" class="progress-bar" style="width: 0%;"></div>
-                    <span id="overall-progress-text" class="progress-text">0%</span>
-                </div>
-
-                <h3>Progression par Bloc :</h3>
-                <div id="block-overall-progress" class="block-progress-summary">
-                    <!-- Les résumés de progression par bloc seront insérés ici par JavaScript -->
-                </div>
             </section>
 
             <!-- Sections pour les Blocs 1, 2 et 3 (le contenu sera généré dynamiquement par JavaScript) -->
@@ -399,392 +485,395 @@
         </main>
     </div>
 
+    <!-- Bouton "Retour en haut" -->
+    <button id="scroll-to-top" title="Retour en haut">⬆️</button>
+
     <script>
         // script.js
 
         // Données brutes du cours fournies par l'utilisateur
         const rawCourseData = [
             "Bachelor Développeur d'application Python 2022-2027",
-            "B1_Bloc_Conception_et_specification_d'une_solution_digitale",
-            "B1_M01_ Module _ Bienvenue",
+            "B1 - Bloc : Conception et spécification d'une solution digitale",
+            "B1_M01_ Module : Bienvenue",
             "B1_M01_001_Guide_du_bloc_Conception_et_specification_d'une_solution_digitale",
-            "B1_M01_002_ Comment_et_pourquoi_se_former_a_la_conception_et_specification_d'une_solution_digitale",
-            "B1_M02_ Module _ Analyser_les_besoins_client_et_identifier_les_solutions_adaptees",
-            "B1_M02_001_ Comment_et_pourquoi_se_former_a_la_conception_et_specification_d'une_solution_digitale",
+            "B1_M01_002_Comment_et_pourquoi_se_former_a_la_conception_et_specification_d'une_solution_digitale",
+            "B1_M02_ Module : Analyser les besoins client et identifier les solutions adaptées",
+            "B1_M02_001_Comment_et_pourquoi_se_former_a_la_conception_et_specification_d'une_solution_digitale",
             "B1_M02_002_La_veille_et_l'innovation",
-            "B1_M02_003_ Les_modes_d'innovation",
-            "B1_M02_004_ Les_entreprises_et_l'innovation",
-            "B1_M02_005_ La_creativite,_moteur_de_l'innovation",
-            "B1_M02_006_ Panorama_des_techniques_de_creativite",
-            "B1_M02_007_ L'ecosysteme_d'un_projet_digital",
-            "B1_M02_008_ Etude_comparative,_le_benchmark_des_solutions_existantes",
-            "B1_M02_009_ Definir_la_cible_de_la_solution_digitale",
-            "B1_M02_010_ Les_principaux_acteurs_d’un_projet_digital _ la_maitrise_d’oeuvre",
-            "B1_M02_011_ Les_principaux_acteurs_d’un_projet_digital _ la_maitrise_d’ouvrage",
-            "B1_M02_012_ Identifier_les_parties_prenantes",
-            "B1_M02_013_ Etablir_la_gouvernance_du_projet,_definir_les_roles_et_les_responsabilites",
-            "B1_M02_014_ Comprendre_les_enjeux_et_les_retombees_d’un_projet",
-            "B1_M02_015_ Le_cahier_des_charges _ l'expression_du_besoin",
-            "B1_M03_ Module _ Definir_les_options_techniques_de_la_solution_digitale",
-            "B1_M03_001_ Les_specificites_du_projet_digital",
-            "B1_M03_002_ Le_recueil_et_l'analyse_des_besoins",
-            "B1_M03_003_ Definir_la_solution_et_le_projet_cibles",
-            "B1_M03_004_ Definir_les_objectifs_et_faire_valider_l’opportunite_du_projet",
-            "B1_M03_005_ Le_choix_technologique_de_la_solution",
-            "B1_M03_006_ Le_cahier_des_charges_technique _ detailler_la_mise_en_oeuvre",
-            "B1_M03_007_ Le_cahier_des_charges_technique _ du_besoin_a_la_solution_technique",
-            "B1_M03_008_ Le_cahier_des_charges_technique _ description_fonctionnelle_et_technique",
-            "B1_M03_009_ La_presentation_et_la_validation_de_sa_solution",
-            "B1_M03_010_ L'utilisation_en_interne_du_CDC",
-            "B1_M04_ Module _ Realiser_une_maquette_avec_Figma",
-            "B1_M04_001_ Prendre_en_main_Figma_et_son_interface",
-            "B1_M04_002_ Importer_et_exporter_des_fichiers_sur_Figma",
-            "B1_M04_003_ Creer_des_composants_sur_Figma",
-            "B1_M04_004_ Utiliser_les_composants_animes_sur_Figma",
-            "B1_M04_005_ Creer_un_design_responsive_sur_Figma",
-            "B1_M04_006_ Creer_un_prototype,_le_partager_et_l'exporter_avec_Figma",
-            "B1_M04_007_ Prendre_en_compte_l'accessibilite_visuelle_sur_Figma",
-            "B1_M04_008_ Collaborer_avec_Figma",
-            "B1_M04_009_ Projet _ Realiser_la_maquette_d'une_application_web_responsive",
-            "B1_M05_ Module _ Definir_la_methodologie,_la_roadmap,_les_ressources_et_les_livrables",
-            "B1_M05_001_ Introduction_a_l'organisation_d'un_projet_digital",
-            "B1_M05_002_ Methodologie_pour_piloter_un_projet_digital _ une_demarche_iterative",
-            "B1_M05_003_ Le_role_du_chef_de_projet_digital",
-            "B1_M05_004_ Les_modes_de_gestion_de_projet_dits_\"classiques\"",
-            "B1_M05_005_ Les_methodologies_agiles",
-            "B1_M05_006_ Les_processus_et_les_disciplines_de_la_gestion_de_projet_selon_le_PMBOK",
-            "B1_M05_007_ Les_acteurs_et_les_ressources_du_projet",
-            "B1_M05_008_ La_premiere_decoupe_du_projet",
-            "B1_M05_009_ La_construction_du_planning",
-            "B1_M05_010_ La_gestion_du_budget_du_projet",
-            "B1_M05_011_ La_gestion_des_risques",
-            "B1_M05_012_ La_communication_autour_du_projet",
-            "B1_M06_ Module _ Concevoir_une_solution_digitale",
-            "B1_M06_001_ La_realisation_d'une_etude_d'opportunite",
-            "B1_M06_002_ Le_role_de_la_note_de_cadrage",
-            "B1_M06_003_ L'etude_de_faisabilite",
-            "B1_M06_004_ L'analyse_des_risques",
-            "B1_M06_005_ L'analyse_fonctionnelle",
-            "B1_M06_006_ Les_outils_essentiels_a_la_proposition_d’une_solution_optimale",
-            "B1_M06_007_ Proposer_une_solution_optimale_en_termes_de_cout",
-            "B1_M06_008_ Proposer_une_solution_optimale_en_termes_de_performance_attendue",
-            "B1_M06_009_ Proposer_une_solution_optimale_en_termes_de_perennite",
-            "B1_M06_010_ L'utilite_du_suivi_de_la_performance",
-            "B1_M06_011_ Les_indicateurs_de_suivi_selon_les_objectifs",
-            "B1_M06_012_ La_construction_d'un_tableau_de_bord_operationnel",
-            "B1_M07_ Module _ Decouvrir_les_methodologies_de_gestion_de_projets_agiles",
-            "B1_M07_001_ Les_methodologies_agiles",
-            "B1_M07_002_ Introduction_a_la_methode_Scrum",
-            "B1_M07_003_ Presentation_du_diagramme_de_Gantt",
-            "B1_M07_004_ Etude_fictive_d'un_projet _ concevoir_un_projet_digital_en_proposant_une_solution_optimale",
-            "B1_M08_ Module _ Concevoir_l’architecture_logicielle_de_la_solution",
-            "B1_M08_001_ L’architecture_en_appels_et_retours",
-            "B1_M08_002_ L’architecture_en_couches",
-            "B1_M08_003_ L’architecture_centree_sur_les_donnees",
-            "B1_M08_004_ L’architecture_en_flot_de_donnees",
-            "B1_M08_005_ L’architecture_orientee_objets",
-            "B1_M08_006_ L’architecture_orientee_agents",
-            "B1_M09_ Module _ Comprendre_la_specification_fonctionnelle",
-            "B1_M09_001_ Comprendre_les_objectifs_de_la_specification_fonctionnelle",
-            "B1_M09_002_ Comment_rediger_une_specification_fonctionnelle",
-            "B1_M10_ Module _ Elaborer_un_cahier_des_charges_fonctionnel",
-            "B1_M10_001_ Le_cahier_des_charges_fonctionnel _ le_contexte_du_projet_et_ses_enjeux",
-            "B1_M10_002_ Le_cahier_des_charges_fonctionnel _ la_portee_de_la_solution",
-            "B1_M10_003_ Le_cahier_des_charges_fonctionnel _ les_contraintes",
-            "B1_M10_004_ Le_cahier_des_charges_fonctionnel _ les_parcours_utilisateurs",
-            "B1_M10_005_ Le_cahier_des_charges_fonctionnel _ les_fonctionnalites_cles_et_les_specifications",
-            "B1_M10_006_ Le_cahier_des_charges_fonctionnel _ l'approche_creative",
-            "B1_M10_007_ Le_cahier_des_charges_fonctionnel _ l'organisation_du_projet",
-            "B1_M10_008_ Creation_d'un_cahier_des_charges",
-            "B1_M11_ Module _ Definir_les_objectifs_SMART_de_sa_solution_digitale",
-            "B1_M11_001_ La_validation_de_la_solution",
-            "B1_M11_002_ Le_droit_du_web",
-            "B1_M11_003_ Definition_du_droit_numerique",
-            "B1_M11_004_ Les_responsabilites_des_intervenants",
-            "B1_M11_005_ Le_droit_penal_de_l'informatique",
-            "B1_M11_006_ L'informatique_sur_le_lieu_de_travail",
-            "B1_M11_007_ La_legislation_comparee",
-            "B1_M11_008_ L'informatique_et_le_droit_public",
-            "B1_M11_009_ Le_cadre_juridique_du_e-commerce",
-            "B1_M11_010_ Les_textes_de_reference",
-            "B2_ Bloc _ Gestion,_pilotage_et_testing_d'une_Solution_Digitale",
-            "B2_M01_ Module _ Bienvenue",
-            "B2_M01_001_ Guide_du_bloc_Gestion,_pilotage_et_testing_d'une_Solution_Digitale",
-            "B2_M01_002_ Comment_et_pourquoi_se_former_a_la_gestion,_pilotage_et_testing_d'une_Solution_Digitale",
-            "B2_M02_ Module _ Utiliser_l'outil_Agile _ Scrum",
-            "B2_M02_001_ Le_manifeste_Agile_et_la_theorie_de_Scrum",
-            "B2_M02_002_ L'equipe_Scrum",
-            "B2_M02_003_ La_valeur_et_le_product_backlog",
-            "B2_M02_004_ La_gestion_des_iterations_en_Scrum",
-            "B2_M02_005_ La_gestion_des_flux_de_travail_et_de_valeur",
-            "B2_M02_006_ La_chaine_d'integration_et_de_livraisons_continues",
-            "B2_M02_007_ Les_regles_d'equipe",
-            "B2_M02_008_ Les_evenements_Agile_vus_par_le_developpeur",
-            "B2_M03_ Module _ Utiliser_l'outil_Agile _ Kanban",
-            "B2_M03_001_ Comprendre_Kanban",
-            "B2_M03_002_ Pratiquer_Kanban_avec_ses_equipes",
-            "B2_M04_ Module _ Manager_et_piloter_les_taches_avec_ses_equipes_projet_grace_a_TRELLO",
-            "B2_M04_001_ Decouverte_des_offres_Trello",
-            "B2_M04_002_ Creer_un_compte_Trello",
-            "B2_M04_003_ Configurer_un_espace_de_travail",
-            "B2_M04_004_ Contenu_d'un_projet_Trello",
-            "B2_M04_005_ Les_niveaux_de_visibilite_d'un_tableau",
-            "B2_M04_006_ Inviter_un_membre_a_un_tableau",
-            "B2_M04_007_ Ajouter_un_membre_a_une_carte",
-            "B2_M04_008_ Gerer_les_membres_d'un_espace_de_travail",
-            "B2_M04_009_ Parametrer_un_tableau",
-            "B2_M04_010_ Gerer_les_listes",
-            "B2_M04_011_ Ajouter_des_dates_a_une_carte",
-            "B2_M04_012_ Les_actions_de_la_carte",
-            "B2_M04_013_ Creer_une_checklist",
-            "B2_M04_014_ Suivre_l'avancement_d'une_checklist",
-            "B2_M04_015_ Decouvrir_les_Power-ups",
-            "B2_M04_016_ Utiliser_un_Power-up _ Google_Drive",
-            "B2_M04_017_ Application_-_Cas_pratique_Trello",
-            "B2_M05_ Module _ Manager_et_piloter_les_taches_avec_ses_equipes_projet_grace_a_JIRA",
-            "B2_M05_001_ Decouvrir_JIRA",
-            "B2_M05_002_ Apprendre_JIRA",
-            "B2_M05_003_ Les_methodologies_agiles_avec_JIRA",
-            "B2_M05_004_ JIRA_pour_les_equipes",
-            "B2_M05_005_ JIRA_pour_les_administrateurs",
-            "B2_M05_006_ Utiliser_JIRA_avec_Gitlab",
-            "B2_M06_ Module _ Gerer_son_projet_avec_GanttProject",
-            "B2_M06_001_ Apprendre_a_utiliser_Gantt_project",
-            "B2_M06_002_ Cadrer_le_projet",
-            "B2_M06_003_ Construire_le_plan_de_projet",
-            "B2_M06_004_ Creation_des_dependances",
-            "B2_M06_005_ Gerer_les_affichages",
-            "B2_M06_006_ Le_reseau_du_projet",
-            "B2_M06_007_ Gerer_les_ressources",
-            "B2_M06_008_ Le_suivi_de_projet",
-            "B2_M06_009_ Les_outils_d'impression_et_d'exportation",
-            "B2_M06_010_ Application_-Gestion_de_projet-_GanttProject",
-            "B2_M07_ Module _ Comprendre_la_modelisation_UML",
-            "B2_M07_001_ Introduction_a_la_modelisation_conceptuelle_de_donnees_avec_UML",
-            "B2_M07_002_ Le_diagramme_de_classe",
-            "B2_M07_003_ Les_diagrammes_d'objets",
-            "B2_M07_004_ Les_diagrammes_de_composants",
-            "B2_M07_005_ Les_diagrammes_de_deploiement",
-            "B2_M07_006_ Les_diagrammes_des_paquets",
-            "B2_M07_007_ Les_diagrammes_de_structure_composite",
-            "B2_M07_008_ Les_diagrammes_de_profils",
-            "B2_M07_009_ Diagrammes_de_cas_d'utilisation_UML_(UML_use_case_diagram)",
-            "B2_M07_010_ Les_diagrammes_etats-transitions",
-            "B2_M07_011_ Les_diagrammes_d'activite",
-            "B2_M07_012_ Les_diagrammes_de_sequence",
-            "B2_M07_013_ Les_diagrammes_de_communication",
-            "B2_M07_014_ Les_diagrammes_global_d'interaction",
-            "B2_M07_015_ Les_diagrammes_de_temps",
-            "B2_M07_016_ Methodologie_agile_et_modelisation_a_l'aide_d'UML",
-            "B2_M08_ Module _ Tester_son_application_Web",
-            "B2_M08_001_ Les_test_unitaires",
-            "B2_M08_002_ Le_test_fonctionnel",
-            "B2_M08_003_ Les_tests_End_2_End",
-            "B2_M08_004_ Les_test_de_deploiements _ A/B_Testing,_evaluation_utilisateurs_et_metiers",
-            "B2_M08_005_ Les_Niveaux_de_test",
-            "B2_M08_006_ Les_Tests_des_composants",
-            "B2_M08_007_ Les_tests_d’integration_du_systeme",
-            "B2_M08_008_ La_mise_en_place_de_l'integration_continue_(CI)",
-            "B2_M08_009_ La_mise_en_place_de_la_livraison_ou_deploiement_continu_(CD)",
-            "B2_M08_010_ La_lecture_d'un_rapport_statistique_de_classification",
-            "B2_M09_ Module _ Realiser_des_tests_fonctionnels",
-            "B2_M09_001_ Les_tests_unitaires_avec_PHPUnit",
-            "B2_M09_002_ Les_tests_fonctionnels_avec_WebTestCase_et_Panther",
-            "B2_M09_003_ Les_tests_unitaires_avec_les_mocks",
-            "B2_M09_004_ Le_Test_Driven_Development",
-            "B2_M09_005_ Les_services",
-            "B2_M09_006_ L'Ajax_avec_Axios_et_Symfony",
-            "B2_M09_007_ Tests_d'integration_et_recette_fonctionnelle",
-            "B2_M09_008_ Mesurer_son_application",
-            "B2_M09_009_ La_realisation_d'un_test_fonctionnel",
-            "B2_M10_ Module _ Proposer_des_solutions_suite_a_un_audit",
-            "B2_M10_001_ La_resolution_d'une_situation_critique_pour_la_survie_du_projet",
-            "B2_M10_002_ Le_suivi_des_indicateurs_qualite_et_amelioration_continue",
-            "B2_M10_003_ Concevoir_la_solution_grace_au_Design_Thinking",
-            "B2_M10_004_ Design_Thinking _ La_phase_d’empathie,_la_comprehension_du_besoin",
-            "B2_M10_005_ Design_Thinking _ Definir_la_problematique",
-            "B2_M10_006_ Design_Thinking _ la_phase_d’ideation",
-            "B2_M10_007_ Design_Thinking _ La_phase_de_prototypage_de_la_solution",
-            "B2_M10_008_ Design_thinking _ La_phase_de_test_de_la_solution",
-            "B3_ Bloc _ Developpement_d'une_solution_digitale_avec_Python",
-            "B3_M01_ Module _ Introduction_au_Parcours_Python",
-            "B3_M01_001_ Guide_du_bloc_Developpement_d'une_solution_digitale_avec_Python",
-            "B3_M01_002_ Comment_et_pourquoi_se_former_au_developpement_d'une_solution_digitale_Python",
-            "B3_M02_ Module _ Piloter_la_production_de_contenus_digitaux",
-            "B3_M02_001_ Introduction_a_la_production_de_contenus_digitaux",
-            "B3_M02_002_ La_creation_de_contenu_digital_en_adequation_avec_sa_cible",
-            "B3_M02_003_ L'orientation_artistique_et_le_brief_creatif",
-            "B3_M02_004_ La_gestion_de_la_production_de_contenus_digitaux",
-            "B3_M02_005_ La_mise_en_place_operationnelle_de_sa_strategie_de_production_de_contenus",
-            "B3_M02_006_ La_proposition_de_production_de_contenu",
-            "B3_M02_007_ Le_workflow",
-            "B3_M03_ Module _ Creer_un_site_web_avec_HTML,_CSS_et_le_Framework_Bootstrap",
-            "B3_M03_001_ Introduction_HTML_et_CSS",
-            "B3_M03_002_ Syntaxe_generale_de_HTML",
-            "B3_M03_003_ L'organisation_du_texte",
-            "B3_M03_004_ Un_langage_hypertexte",
-            "B3_M03_005_ Le_multimedia_en_HTML",
-            "B3_M03_006_ Introduction_a_CSS3 _ Hello_world",
-            "B3_M03_007_ CSS3 _ Le_stylage_du_texte",
-            "B3_M03_008_ La_structuration_logique_en_HTML5_et_le_modele_de_boites_en_CSS3",
-            "B3_M03_009_ Les_selecteurs_CSS",
-            "B3_M03_010_ La_mise_en_page_avec_CSS",
-            "B3_M03_011_ La_creation_de_tableaux",
-            "B3_M03_012_ La_creation_de_formulaires",
-            "B3_M03_013_ Layout_avec_CSS_Grid",
-            "B3_M03_014_ Les_effets_avances_de_CSS",
-            "B3_M03_015_ Utiliser_des_documentations_CSS",
-            "B3_M03_016_ Le_responsive_design",
-            "B3_M03_017_ Valider_la_qualite_de_son_site",
-            "B3_M03_018_ L'installation_et_la_prise_en_main_du_framework_Bootstrap _ Hello_world",
-            "B3_M03_019_ La_grille_bootstrap",
-            "B3_M03_020_ Les_elements_bootstrap",
-            "B3_M03_021_ Les_composants_bootstrap",
-            "B3_M03_022_ Ouverture_vers_d'autres_framework_CSS",
-            "B3_M03_023_ SASS",
-            "B3_M03_024_ Le_referencement_des_sites_Web",
-            "B3_M03_025_ Deployer_son_site_sur_le_Web",
-            "B3_M04_ Module _ Les_fondamentaux_de_JavaScript_(facultatif)",
-            "B3_M04_001_ Introduction_a_javascript",
-            "B3_M04_002_ Syntaxe_et_integration_de_JS",
-            "B3_M04_003_ Les_variables_en_JS",
-            "B3_M04_004_ Les_operateurs",
-            "B3_M04_005_ Structures_de_controle_en_JS",
-            "B3_M04_006_ Les_boucles",
-            "B3_M04_007_ Les_fonctions_en_JS",
-            "B3_M04_008_ Les_types_de_donnees",
-            "B3_M04_009_ L'objet_JavaScript_Number",
-            "B3_M04_010_ Les_objets_JavaScrip_String_et_Array",
-            "B3_M04_011_ Les_objets_JS",
-            "B3_M04_012_ Les_classes_et_l'instanciation_d'objet",
-            "B3_M04_013_ L'objet_Date",
-            "B3_M04_014_ Introduction_au_Document_Object_Model",
-            "B3_M04_015_ Projet _ formulaire_dynamique_avec_JS",
-            "B3_M05_ Module _ Programmer_avec_Javascript",
-            "B3_M05_001_ JS_Browser_BOM_(window_-screen-Location-_History,_etc)",
-            "B3_M05_002_ Fonction_asynchrone_et_callback",
-            "B3_M05_003_ Le_format_JSON_et_AJAX",
-            "B3_M05_004_ Les_promesses",
-            "B3_M05_005_ Decouverte_des_patrons_de_conception",
-            "B3_M05_006_ JavaScript_Events",
-            "B3_M05_007_ Introduction_et_installation_de_TypeScript",
-            "B3_M05_008_ Type_de_donnee_avec_TypesScript",
-            "B3_M05_009_ Donnees_avancee_avec_TypeScript",
-            "B3_M05_010_ L'objet_avec_TypeScript",
-            "B3_M05_011_ JavaScript_Graphics",
-            "B3_M05_012_ JavaScript_Canvas",
-            "B3_M05_013_ La_Gestion_d'erreur",
-            "B3_M05_014_ Debug",
-            "B3_M05_015_ Les_bonnes_pratiques_de_la_programmation_avec_JS",
-            "B3_M05_016_ Projet _ Memory_game",
-            "B3_M06_ Module _ Creer_et_administrer_une_base_de_donnees_relationnelle",
-            "B3_M06_001_ Introduction_generale_aux_bases_de_donnees,_notion_de_SGBDR",
-            "B3_M06_002_ Modele_conceptuel_de_donnees_et_modele_logique_de_donnees",
-            "B3_M06_003_ Les_diagrammes_fonctionnels",
-            "B3_M06_004_ Introduction_au_passage_UML-Relationnel",
-            "B3_M06_005_ Creation_et_alimentation_de_bases_de_donnees_SQL",
-            "B3_M06_006_ L'interrogation_de_bases_de_donnees_SQL",
-            "B3_M06_007_ Decouvrez_un_autre_SGBDR _ PostgreSQL",
-            "B3_M06_008_ Connexion_a_la_base_de_donnees_en_PHP",
-            "B3_M06_009_ PHP/PDO _ acces_en_lecture/ecriture",
-            "B3_M06_010_ Les_requetes_SQL",
-            "B3_M06_011_ Les_fonctions_SQL",
-            "B3_M06_012_ Les_jointures_SQL",
-            "B3_M06_013_ Gerer_les_acces_des_utilisateurs_au_niveau_PHP_et_BD",
-            "B3_M06_014_ Decouverte_d'un_ORM_PHP",
-            "B3_M06_015_ Projet _ Creer_et_administrer_une_base_de_donnees",
-            "B3_M07_ Module _ Creer_et_administrer_une_base_de_donnees_non_relationnelle",
-            "B3_M07_001_ Introduction_NOSQL",
-            "B3_M07_002_ Introduction_a_MongoDB",
-            "B3_M08_ Module _ Developper_une_application_web_avec_Python",
-            "B3_M08_001_ L'interpreteur_de_commande_Python",
-            "B3_M08_002_ Environnements_de_travail",
-            "B3_M08_003_ Les_variables_et_types_de_donnees",
-            "B3_M08_004_ Chaine_de_caracteres_en_Python",
-            "B3_M08_005_ Structures_de_controle",
-            "B3_M08_006_ Les_structures_de_donnees_en_Python",
-            "B3_M08_007_ Structure_d'un_programme_-_fonctions",
-            "B3_M08_008_ Ameliorer_la_qualite_du_code",
-            "B3_M08_009_ Structure_d'un_programme_-_modules",
-            "B3_M08_010_ Ameliorer_la_qualite_du_code_-_les_tests_unitaires",
-            "B3_M08_011_ Notion_theorique_de_classe",
-            "B3_M08_012_ Constructeur_et_mot-cle_self",
-            "B3_M08_013_ Les_methodes_speciales",
-            "B3_M08_014_ L'heritage",
-            "B3_M08_015_ La_notion_de_decorateur_en_Python",
-            "B3_M08_016_ Gestion_du_temps_en_Python",
-            "B3_M08_017_ Mathematiques_en_Python",
-            "B3_M08_018_ Notebooks_python",
-            "B3_M08_019_ Notions_avancees_de_visualisation",
-            "B3_M08_010_ Gestion_des_fichiers_en_Python",
-            "B3_M08_021_ Les_Requetes_HTTP",
-            "B3_M08_022_ Les_bases_de_donnees_relationnelles_et_Python",
-            "B3_M08_023_ Notion_d'ORM_(object-relational_mapping)",
-            "B3_M08_024_ Cadre_theorique_de_Flask",
-            "B3_M08_025_ Le_moteur_de_template_Jinja",
-            "B3_M08_026_ Deploiement_en_ligne_du_site_Flask",
-            "B3_M08_027_ Cadre_theorique_de_Django",
-            "B3_M08_028_ Les_modeles_en_Django",
-            "B3_M08_029_ Les_vues_en_Django",
-            "B3_M08_030_ API_REST_en_Python",
-            "B3_M08_031_ La_presentation_des_donnees_et_des_librairies",
-            "B3_M08_032_ La_librairie_numpy",
-            "B3_M08_033_ La_librairie_pandas _ premiere_approche",
-            "B3_M08_034_ Aller_plus_loin_avec_la_librairie_pandas",
-            "B3_M08_035_ La_librairie_matplotlib",
-            "B3_M08_036_ La_librairie_Seaborn",
-            "B3_M08_037_ La_librairie_Bokeh_et_Folium",
-            "B3_M08_038_ La_data_visualisation_avec_Streamlit",
-            "B3_M08_039_ Des_presentations_de_resultats_impactantes",
-            "B3_M08_040_ Application _ Developper_une_application_web_avec_Python",
-            "B3_M09_ Module _ Developper_une_application_mobile_avec_React_Native",
-            "B3_M09_001_ Le_developpement_Mobile",
-            "B3_M09_002_ Introduction_a_React_Native _ l'outil_Expo",
-            "B3_M09_003_ Les_bases_de_React_Native",
-            "B3_M09_004_ Les_composants_React_Native",
-            "B3_M09_005_ Les_props_et_les_states",
-            "B3_M09_006_ Style_et_mise_en_page_avec_Flexbox",
-            "B3_M09_007_ Du_code_different_en_fonction_de_la_plateforme",
-            "B3_M09_008_ L'utilisation_de_Redux",
-            "B3_M09_009_ Les_extensions_de_Redux",
-            "B3_M09_010_ L'organisation_d'une_application_React_Native",
-            "B3_M09_011_ La_navigation_avec_React_Native",
-            "B3_M09_012_ Les_differents_types_de_navigators",
-            "B3_M09_013_ L'animation_avec_React_Native",
-            "B3_M09_014_ Installer_les_emulateurs",
-            "B3_M09_015_ Utiliser_une_base_donnees_locale _ SQLITE",
-            "B3_M09_016_ Les_APIs_React_Native_et_modules_natifs",
-            "B3_M09_017_ Le_debugging",
-            "B3_M09_018_ Le_deploiement_d'une_application_sur_les_stores",
-            "B3_M09_019_ Creer_une_application_React_Native_sans_Expo",
-            "B3_M09_020_ Projet_-_Developper_une_application_mobile_avec_React_Native",
-            "B3_M10_ Module _ Concevoir_une_API",
-            "B3_M10_001_ Presentation_des_API",
-            "B3_M10_002_ Concevoir_une_API",
-            "B3_M10_003_ Gerer_les_acces_a_une_API",
-            "B3_M11_ Module _ Utiliser_des_API",
-            "B3_M11_001_ Les_API_d'authentification",
-            "B3_M11_002_ Les_API_Google_/_AWS",
-            "B3_M11_003_ Les_API_de_paiement",
-            "B3_M11_004_ Application _ Realiser_une_application_web",
-            "B3_M12_ Module _ Utiliser_un_outil_de_gestion_de_version_de_code_source",
-            "B3_M12_001_ Introduction_a_la_ligne_de_commande",
-            "B3_M12_002_ Introduction_a_Git_et_Github",
-            "B3_M12_003_ Les_bases",
-            "B3_M12_004_ Les_interactions_avec_le_depot_distant",
-            "B3_M12_005_ Naviguer_dans_l'historique",
-            "B3_M12_006_ La_gestion_des_branches",
-            "B3_M12_007_ Les_branches_avec_Git_-_Rebaser",
-            "B3_M12_008_ Les_bonnes_pratiques",
-            "B3_M12_009_ Projet_-_Utiliser_Git_et_Github_pour_gerer_son_code_source",
-            "B3_M12_010_ Introduction_a_Gitlab",
-            "B3_M13_ Module _ Maintenir_et_documenter_son_projet",
-            "B3_M13_001_ Ameliorer_sa_solution",
-            "B3_M13_002_ La_documentation_pour_l'utilisateur",
-            "B3_M13_003_ Le_pentest",
-            "B3_M13_004_ Gestion_de_la_dette_technique",
-            "B3_M13_005_ Documentation_de_l'architecture_et_du_code",
-            "B3_M13_006_ Application _ Versionner_et_ameliorer_sa_solution_en_continu"
+            "B1_M02_003_Les_modes_d'innovation",
+            "B1_M02_004_Les_entreprises_et_l'innovation",
+            "B1_M02_005_La_creativite,_moteur_de_l'innovation",
+            "B1_M02_006_Panorama_des_techniques_de_creativite",
+            "B1_M02_007_L'ecosysteme_d'un_projet_digital",
+            "B1_M02_008_Etude_comparative,_le_benchmark_des_solutions_existantes",
+            "B1_M02_009_Definir_la_cible_de_la_solution_digitale",
+            "B1_M02_010_Les_principaux_acteurs_d’un_projet_digital _ la_maitrise_d’oeuvre",
+            "B1_M02_011_Les_principaux_acteurs_d’un_projet_digital _ la_maitrise_d’ouvrage",
+            "B1_M02_012_Identifier_les_parties_prenantes",
+            "B1_M02_013_Etablir_la_gouvernance_du_projet,_definir_les_roles_et_les_responsabilites",
+            "B1_M02_014_Comprendre_les_enjeux_et_les_retombees_d’un_projet",
+            "B1_M02_015_Le_cahier_des_charges _ l'expression_du_besoin",
+            "B1_M03_ Module : Définir les options techniques de la solution digitale",
+            "B1_M03_001_Les_specificites_du_projet_digital",
+            "B1_M03_002_Le_recueil_et_l'analyse_des_besoins",
+            "B1_M03_003_Definir_la_solution_et_le_projet_cibles",
+            "B1_M03_004_Definir_les_objectifs_et_faire_valider_l’opportunite_du_projet",
+            "B1_M03_005_Le_choix_technologique_de_la_solution",
+            "B1_M03_006_Le_cahier_des_charges_technique _ detailler_la_mise_en_oeuvre",
+            "B1_M03_007_Le_cahier_des_charges_technique _ du_besoin_a_la_solution_technique",
+            "B1_M03_008_Le_cahier_des_charges_technique _ description_fonctionnelle_et_technique",
+            "B1_M03_009_La_presentation_et_la_validation_de_sa_solution",
+            "B1_M03_010_L'utilisation_en_interne_du_CDC",
+            "B1_M04_ Module : Réaliser une maquette avec Figma",
+            "B1_M04_001_Prendre_en_main_Figma_et_son_interface",
+            "B1_M04_002_Importer_et_exporter_des_fichiers_sur_Figma",
+            "B1_M04_003_Creer_des_composants_sur_Figma",
+            "B1_M04_004_Utiliser_les_composants_animes_sur_Figma",
+            "B1_M04_005_Creer_un_design_responsive_sur_Figma",
+            "B1_M04_006_Creer_un_prototype,_le_partager_et_l'exporter_avec_Figma",
+            "B1_M04_007_Prendre_en_compte_l'accessibilite_visuelle_sur_Figma",
+            "B1_M04_008_Collaborer_avec_Figma",
+            "B1_M04_009_Projet _ Realiser_la_maquette_d'une_application_web_responsive",
+            "B1_M05_ Module : Définir la méthodologie, la roadmap, les ressources et les livrables",
+            "B1_M05_001_Introduction_a_l'organisation_d'un_projet_digital",
+            "B1_M05_002_Methodologie_pour_piloter_un_projet_digital _ une_demarche_iterative",
+            "B1_M05_003_Le_role_du_chef_de_projet_digital",
+            "B1_M05_004_Les_modes_de_gestion_de_projet_dits_\"classiques\"",
+            "B1_M05_005_Les_methodologies_agiles",
+            "B1_M05_006_Les_processus_et_les_disciplines_de_la_gestion_de_projet_selon_le_PMBOK",
+            "B1_M05_007_Les_acteurs_et_les_ressources_du_projet",
+            "B1_M05_008_La_premiere_decoupe_du_projet",
+            "B1_M05_009_La_construction_du_planning",
+            "B1_M05_010_La_gestion_du_budget_du_projet",
+            "B1_M05_011_La_gestion_des_risques",
+            "B1_M05_012_La_communication_autour_du_projet",
+            "B1_M06_ Module : Concevoir une solution digitale",
+            "B1_M06_001_La_realisation_d'une_etude_d'opportunite",
+            "B1_M06_002_Le_role_de_la_note_de_cadrage",
+            "B1_M06_003_L'etude_de_faisabilite",
+            "B1_M06_004_L'analyse_des_risques",
+            "B1_M06_005_L'analyse_fonctionnelle",
+            "B1_M06_006_Les_outils_essentiels_a_la_proposition_d’une_solution_optimale",
+            "B1_M06_007_Proposer_une_solution_optimale_en_termes_de_cout",
+            "B1_M06_008_Proposer_une_solution_optimale_en_termes_de_performance_attendue",
+            "B1_M06_009_Proposer_une_solution_optimale_en_termes_de_perennite",
+            "B1_M06_010_L'utilite_du_suivi_de_la_performance",
+            "B1_M06_011_Les_indicateurs_de_suivi_selon_les_objectifs",
+            "B1_M06_012_La_construction_d'un_tableau_de_bord_operationnel",
+            "B1_M07_ Module : Découvrir les méthodologies de gestion de projets agiles",
+            "B1_M07_001_Les_methodologies_agiles",
+            "B1_M07_002_Introduction_a_la_methode_Scrum",
+            "B1_M07_003_Presentation_du_diagramme_de_Gantt",
+            "B1_M07_004_Etude_fictive_d'un_projet _ concevoir_un_projet_digital_en_proposant_une_solution_optimale",
+            "B1_M08_ Module : Concevoir l’architecture logicielle de la solution",
+            "B1_M08_001_L’architecture_en_appels_et_retours",
+            "B1_M08_002_L’architecture_en_couches",
+            "B1_M08_003_L’architecture_centree_sur_les_donnees",
+            "B1_M08_004_L’architecture_en_flot_de_donnees",
+            "B1_M08_005_L’architecture_orientee_objets",
+            "B1_M08_006_L’architecture_orientee_agents",
+            "B1_M09_ Module : Comprendre la spécification fonctionnelle",
+            "B1_M09_001_Comprendre_les_objectifs_de_la_specification_fonctionnelle",
+            "B1_M09_002_Comment_rediger_une_specification_fonctionnelle",
+            "B1_M10_ Module : Élaborer un cahier des charges fonctionnel",
+            "B1_M10_001_Le_cahier_des_charges_fonctionnel _ le_contexte_du_projet_et_ses_enjeux",
+            "B1_M10_002_Le_cahier_des_charges_fonctionnel _ la_portee_de_la_solution",
+            "B1_M10_003_Le_cahier_des_charges_fonctionnel _ les_contraintes",
+            "B1_M10_004_Le_cahier_des_charges_fonctionnel _ les_parcours_utilisateurs",
+            "B1_M10_005_Le_cahier_des_charges_fonctionnel _ les_fonctionnalites_cles_et_les_specifications",
+            "B1_M10_006_Le_cahier_des_charges_fonctionnel _ l'approche_creative",
+            "B1_M10_007_Le_cahier_des_charges_fonctionnel _ l'organisation_du_projet",
+            "B1_M10_008_Creation_d'un_cahier_des_charges",
+            "B1_M11_ Module : Définir les objectifs SMART de sa solution digitale",
+            "B1_M11_001_La_validation_de_la_solution",
+            "B1_M11_002_Le_droit_du_web",
+            "B1_M11_003_Definition_du_droit_numerique",
+            "B1_M11_004_Les_responsabilites_des_intervenants",
+            "B1_M11_005_Le_droit_penal_de_l'informatique",
+            "B1_M11_006_L'informatique_sur_le_lieu_de_travail",
+            "B1_M11_007_La_legislation_comparee",
+            "B1_M11_008_L'informatique_et_le_droit_public",
+            "B1_M11_009_Le_cadre_juridique_du_e-commerce",
+            "B1_M11_010_Les_textes_de_reference",
+            "B2 - Bloc : Gestion, pilotage et testing d'une Solution Digitale",
+            "B2_M01_ Module : Bienvenue",
+            "B2_M01_001_Guide_du_bloc_Gestion,_pilotage_et_testing_d'une_Solution_Digitale",
+            "B2_M01_002_Comment_et_pourquoi_se_former_a_la_gestion,_pilotage_et_testing_d'une_Solution_Digitale",
+            "B2_M02_ Module : Utiliser l'outil Agile : Scrum",
+            "B2_M02_001_Le_manifeste_Agile_et_la_theorie_de_Scrum",
+            "B2_M02_002_L'equipe_Scrum",
+            "B2_M02_003_La_valeur_et_le_product_backlog",
+            "B2_M02_004_La_gestion_des_iterations_en_Scrum",
+            "B2_M02_005_La_gestion_des_flux_de_travail_et_de_valeur",
+            "B2_M02_006_La_chaine_d'integration_et_de_livraisons_continues",
+            "B2_M02_007_Les_regles_d'equipe",
+            "B2_M02_008_Les_evenements_Agile_vus_par_le_developpeur",
+            "B2_M03_ Module : Utiliser l'outil Agile : Kanban",
+            "B2_M03_001_Comprendre_Kanban",
+            "B2_M03_002_Pratiquer_Kanban_avec_ses_equipes",
+            "B2_M04_ Module : Manager et piloter les tâches avec ses équipes projet grâce à TRELLO",
+            "B2_M04_001_Decouverte_des_offres_Trello",
+            "B2_M04_002_Creer_un_compte_Trello",
+            "B2_M04_003_Configurer_un_espace_de_travail",
+            "B2_M04_004_Contenu_d'un_projet_Trello",
+            "B2_M04_005_Les_niveaux_de_visibilite_d'un_tableau",
+            "B2_M04_006_Inviter_un_membre_a_un_tableau",
+            "B2_M04_007_Ajouter_un_membre_a_une_carte",
+            "B2_M04_008_Gerer_les_membres_d'un_espace_de_travail",
+            "B2_M04_009_Parametrer_un_tableau",
+            "B2_M04_010_Gerer_les_listes",
+            "B2_M04_011_Ajouter_des_dates_a_une_carte",
+            "B2_M04_012_Les_actions_de_la_carte",
+            "B2_M04_013_Creer_une_checklist",
+            "B2_M04_014_Suivre_l'avancement_d'une_checklist",
+            "B2_M04_015_Decouvrir_les_Power-ups",
+            "B2_M04_016_Utiliser_un_Power-up _ Google_Drive",
+            "B2_M04_017_Application_-_Cas_pratique_Trello",
+            "B2_M05_ Module : Manager et piloter les tâches avec ses équipes projet grâce à JIRA",
+            "B2_M05_001_Decouvrir_JIRA",
+            "B2_M05_002_Apprendre_JIRA",
+            "B2_M05_003_Les_methodologies_agiles_avec_JIRA",
+            "B2_M05_004_JIRA_pour_les_equipes",
+            "B2_M05_005_JIRA_pour_les_administrateurs",
+            "B2_M05_006_Utiliser_JIRA_avec_Gitlab",
+            "B2_M06_ Module : Gérer son projet avec GanttProject",
+            "B2_M06_001_Apprendre_a_utiliser_Gantt_project",
+            "B2_M06_002_Cadrer_le_projet",
+            "B2_M06_003_Construire_le_plan_de_projet",
+            "B2_M06_004_Creation_des_dependances",
+            "B2_M06_005_Gerer_les_affichages",
+            "B2_M06_006_Le_reseau_du_projet",
+            "B2_M06_007_Gerer_les_ressources",
+            "B2_M06_008_Le_suivi_de_projet",
+            "B2_M06_009_Les_outils_d'impression_et_d'exportation",
+            "B2_M06_010_Application_-Gestion_de_projet-_GanttProject",
+            "B2_M07_ Module : Comprendre la modélisation UML",
+            "B2_M07_001_Introduction_a_la_modelisation_conceptuelle_de_donnees_avec_UML",
+            "B2_M07_002_Le_diagramme_de_classe",
+            "B2_M07_003_Les_diagrammes_d'objets",
+            "B2_M07_004_Les_diagrammes_de_composants",
+            "B2_M07_005_Les_diagrammes_de_deploiement",
+            "B2_M07_006_Les_diagrammes_des_paquets",
+            "B2_M07_007_Les_diagrammes_de_structure_composite",
+            "B2_M07_008_Les_diagrammes_de_profils",
+            "B2_M07_009_Diagrammes_de_cas_d'utilisation_UML_(UML_use_case_diagram)",
+            "B2_M07_010_Les_diagrammes_etats-transitions",
+            "B2_M07_011_Les_diagrammes_d'activite",
+            "B2_M07_012_Les_diagrammes_de_sequence",
+            "B2_M07_013_Les_diagrammes_de_communication",
+            "B2_M07_014_Les_diagrammes_global_d'interaction",
+            "B2_M07_015_Les_diagrammes_de_temps",
+            "B2_M07_016_Methodologie_agile_et_modelisation_a_l'aide_d'UML",
+            "B2_M08_ Module : Tester son application Web",
+            "B2_M08_001_Les_test_unitaires",
+            "B2_M08_002_Le_test_fonctionnel",
+            "B2_M08_003_Les_tests_End_2_End",
+            "B2_M08_004_Les_test_de_deploiements _ A/B_Testing,_evaluation_utilisateurs_et_metiers",
+            "B2_M08_005_Les_Niveaux_de_test",
+            "B2_M08_006_Les_Tests_des_composants",
+            "B2_M08_007_Les_tests_d’integration_du_systeme",
+            "B2_M08_008_La_mise_en_place_de_l'integration_continue_(CI)",
+            "B2_M08_009_La_mise_en_place_de_la_livraison_ou_deploiement_continu_(CD)",
+            "B2_M08_010_La_lecture_d'un_rapport_statistique_de_classification",
+            "B2_M09_ Module : Réaliser des tests fonctionnels",
+            "B2_M09_001_Les_tests_unitaires_avec_PHPUnit",
+            "B2_M09_002_Les_tests_fonctionnels_avec_WebTestCase_et_Panther",
+            "B2_M09_003_Les_tests_unitaires_avec_les_mocks",
+            "B2_M09_004_Le_Test_Driven_Development",
+            "B2_M09_005_Les_services",
+            "B2_M09_006_L'Ajax_avec_Axios_et_Symfony",
+            "B2_M09_007_Tests_d'integration_et_recette_fonctionnelle",
+            "B2_M09_008_Mesurer_son_application",
+            "B2_M09_009_La_realisation_d'un_test_fonctionnel",
+            "B2_M10_ Module : Proposer des solutions suite à un audit",
+            "B2_M10_001_La_resolution_d'une_situation_critique_pour_la_survie_du_projet",
+            "B2_M10_002_Le_suivi_des_indicateurs_qualite_et_amelioration_continue",
+            "B2_M10_003_Concevoir_la_solution_grace_au_Design_Thinking",
+            "B2_M10_004_Design_Thinking _ La_phase_d’empathie,_la_comprehension_du_besoin",
+            "B2_M10_005_Design_Thinking _ Definir_la_problematique",
+            "B2_M10_006_Design_Thinking _ la_phase_d’ideation",
+            "B2_M10_007_Design_Thinking _ La_phase_de_prototypage_de_la_solution",
+            "B2_M10_008_Design_thinking _ La_phase_de_test_de_la_solution",
+            "B3 - Bloc : Développement d'une solution digitale avec Python",
+            "B3_M01_ Module : Introduction au Parcours Python",
+            "B3_M01_001_Guide_du_bloc_Developpement_d'une_solution_digitale_avec_Python",
+            "B3_M01_002_Comment_et_pourquoi_se_former_au_developpement_d'une_solution_digitale_Python",
+            "B3_M02_ Module : Piloter la production de contenus digitaux",
+            "B3_M02_001_Introduction_a_la_production_de_contenus_digitaux",
+            "B3_M02_002_La_creation_de_contenu_digital_en_adequation_avec_sa_cible",
+            "B3_M02_003_L'orientation_artistique_et_le_brief_creatif",
+            "B3_M02_004_La_gestion_de_la_production_de_contenus_digitaux",
+            "B3_M02_005_La_mise_en_place_operationnelle_de_sa_strategie_de_production_de_contenus",
+            "B3_M02_006_La_proposition_de_production_de_contenu",
+            "B3_M02_007_Le_workflow",
+            "B3_M03_ Module : Créer un site web avec HTML, CSS et le Framework Bootstrap",
+            "B3_M03_001_Introduction_HTML_et_CSS",
+            "B3_M03_002_Syntaxe_generale_de_HTML",
+            "B3_M03_003_L'organisation_du_texte",
+            "B3_M03_004_Un_langage_hypertexte",
+            "B3_M03_005_Le_multimedia_en_HTML",
+            "B3_M03_006_Introduction_a_CSS3 _ Hello_world",
+            "B3_M03_007_CSS3 _ Le_stylage_du_texte",
+            "B3_M03_008_La_structuration_logique_en_HTML5_et_le_modele_de_boites_en_CSS3",
+            "B3_M03_009_Les_selecteurs_CSS",
+            "B3_M03_010_La_mise_en_page_avec_CSS",
+            "B3_M03_011_La_creation_de_tableaux",
+            "B3_M03_012_La_creation_de_formulaires",
+            "B3_M03_013_Layout_avec_CSS_Grid",
+            "B3_M03_014_Les_effets_avances_de_CSS",
+            "B3_M03_015_Utiliser_des_documentations_CSS",
+            "B3_M03_016_Le_responsive_design",
+            "B3_M03_017_Valider_la_qualite_de_son_site",
+            "B3_M03_018_L'installation_et_la_prise_en_main_du_framework_Bootstrap _ Hello_world",
+            "B3_M03_019_La_grille_bootstrap",
+            "B3_M03_020_Les_elements_bootstrap",
+            "B3_M03_021_Les_composants_bootstrap",
+            "B3_M03_022_Ouverture_vers_d'autres_framework_CSS",
+            "B3_M03_023_SASS",
+            "B3_M03_024_Le_referencement_des_sites_Web",
+            "B3_M03_025_Deployer_son_site_sur_le_Web",
+            "B3_M04_ Module : Les fondamentaux de JavaScript (facultatif)",
+            "B3_M04_001_Introduction_a_javascript",
+            "B3_M04_002_Syntaxe_et_integration_de_JS",
+            "B3_M04_003_Les_variables_en_JS",
+            "B3_M04_004_Les_operateurs",
+            "B3_M04_005_Structures_de_controle_en_JS",
+            "B3_M04_006_Les_boucles",
+            "B3_M04_007_Les_fonctions_en_JS",
+            "B3_M04_008_Les_types_de_donnees",
+            "B3_M04_009_L'objet_JavaScript_Number",
+            "B3_M04_010_Les_objets_JavaScrip_String_et_Array",
+            "B3_M04_011_Les_objets_JS",
+            "B3_M04_012_Les_classes_et_l'instanciation_d'objet",
+            "B3_M04_013_L'objet_Date",
+            "B3_M04_014_Introduction_au_Document_Object_Model",
+            "B3_M04_015_Projet _ formulaire_dynamique_avec_JS",
+            "B3_M05_ Module : Programmer avec Javascript",
+            "B3_M05_001_JS_Browser_BOM_(window_-screen-Location-_History,_etc)",
+            "B3_M05_002_Fonction_asynchrone_et_callback",
+            "B3_M05_003_Le_format_JSON_et_AJAX",
+            "B3_M05_004_Les_promesses",
+            "B3_M05_005_Decouverte_des_patrons_de_conception",
+            "B3_M05_006_JavaScript_Events",
+            "B3_M05_007_Introduction_et_installation_de_TypeScript",
+            "B3_M05_008_Type_de_donnee_avec_TypesScript",
+            "B3_M05_009_Donnees_avancee_avec_TypeScript",
+            "B3_M05_010_L'objet_avec_TypeScript",
+            "B3_M05_011_JavaScript_Graphics",
+            "B3_M05_012_JavaScript_Canvas",
+            "B3_M05_013_La_Gestion_d'erreur",
+            "B3_M05_014_Debug",
+            "B3_M05_015_Les_bonnes_pratiques_de_la_programmation_avec_JS",
+            "B3_M05_016_Projet _ Memory_game",
+            "B3_M06_ Module : Créer et administrer une base de données relationnelle",
+            "B3_M06_001_Introduction_generale_aux_bases_de_donnees,_notion_de_SGBDR",
+            "B3_M06_002_Modele_conceptuel_de_donnees_et_modele_logique_de_donnees",
+            "B3_M06_003_Les_diagrammes_fonctionnels",
+            "B3_M06_004_Introduction_au_passage_UML-Relationnel",
+            "B3_M06_005_Creation_et_alimentation_de_bases_de_donnees_SQL",
+            "B3_M06_006_L'interrogation_de_bases_de_donnees_SQL",
+            "B3_M06_007_Decouvrez_un_autre_SGBDR _ PostgreSQL",
+            "B3_M06_008_Connexion_a_la_base_de_donnees_en_PHP",
+            "B3_M06_009_PHP/PDO _ acces_en_lecture/ecriture",
+            "B3_M06_010_Les_requetes_SQL",
+            "B3_M06_011_Les_fonctions_SQL",
+            "B3_M06_012_Les_jointures_SQL",
+            "B3_M06_013_Gerer_les_acces_des_utilisateurs_au_niveau_PHP_et_BD",
+            "B3_M06_014_Decouverte_d'un_ORM_PHP",
+            "B3_M06_015_Projet _ Creer_et_administrer_une_base_de_donnees",
+            "B3_M07_ Module : Créer et administrer une base de données non relationnelle",
+            "B3_M07_001_Introduction_NOSQL",
+            "B3_M07_002_Introduction_a_MongoDB",
+            "B3_M08_ Module : Développer une application web avec Python",
+            "B3_M08_001_L'interpreteur_de_commande_Python",
+            "B3_M08_002_Environnements_de_travail",
+            "B3_M08_003_Les_variables_et_types_de_donnees",
+            "B3_M08_004_Chaine_de_caracteres_en_Python",
+            "B3_M08_005_Structures_de_controle",
+            "B3_M08_006_Les_structures_de_donnees_en_Python",
+            "B3_M08_007_Structure_d'un_programme_-_fonctions",
+            "B3_M08_008_Ameliorer_la_qualite_du_code",
+            "B3_M08_009_Structure_d'un_programme_-_modules",
+            "B3_M08_010_Ameliorer_la_qualite_du_code_-_les_tests_unitaires",
+            "B3_M08_011_Notion_theorique_de_classe",
+            "B3_M08_012_Constructeur_et_mot-cle_self",
+            "B3_M08_013_Les_methodes_speciales",
+            "B3_M08_014_L'heritage",
+            "B3_M08_015_La_notion_de_decorateur_en_Python",
+            "B3_M08_016_Gestion_du_temps_en_Python",
+            "B3_M08_017_Mathematiques_en_Python",
+            "B3_M08_018_Notebooks_python",
+            "B3_M08_019_Notions_avancees_de_visualisation",
+            "B3_M08_010_Gestion_des_fichiers_en_Python",
+            "B3_M08_021_Les_Requetes_HTTP",
+            "B3_M08_022_Les_bases_de_donnees_relationnelles_et_Python",
+            "B3_M08_023_Notion_d'ORM_(object-relational_mapping)",
+            "B3_M08_024_Cadre_theorique_de_Flask",
+            "B3_M08_025_Le_moteur_de_template_Jinja",
+            "B3_M08_026_Deploiement_en_ligne_du_site_Flask",
+            "B3_M08_027_Cadre_theorique_de_Django",
+            "B3_M08_028_Les_modeles_en_Django",
+            "B3_M08_029_Les_vues_en_Django",
+            "B3_M08_030_API_REST_en_Python",
+            "B3_M08_031_La_presentation_des_donnees_et_des_librairies",
+            "B3_M08_032_La_librairie_numpy",
+            "B3_M08_033_La_librairie_pandas _ premiere_approche",
+            "B3_M08_034_Aller_plus_loin_avec_la_librairie_pandas",
+            "B3_M08_035_La_librairie_matplotlib",
+            "B3_M08_036_La_librairie_Seaborn",
+            "B3_M08_037_La_librairie_Bokeh_et_Folium",
+            "B3_M08_038_La_data_visualisation_avec_Streamlit",
+            "B3_M08_039_Des_presentations_de_resultats_impactantes",
+            "B3_M08_040_Application _ Developper_une_application_web_avec_Python",
+            "B3_M09_ Module : Développer une application mobile avec React Native",
+            "B3_M09_001_Le_developpement_Mobile",
+            "B3_M09_002_Introduction_a_React_Native _ l'outil_Expo",
+            "B3_M09_003_Les_bases_de_React_Native",
+            "B3_M09_004_Les_composants_React_Native",
+            "B3_M09_005_Les_props_et_les_states",
+            "B3_M09_006_Style_et_mise_en_page_avec_Flexbox",
+            "B3_M09_007_Du_code_different_en_fonction_de_la_plateforme",
+            "B3_M09_008_L'utilisation_de_Redux",
+            "B3_M09_009_Les_extensions_de_Redux",
+            "B3_M09_010_L'organisation_d'une_application_React_Native",
+            "B3_M09_011_La_navigation_avec_React_Native",
+            "B3_M09_012_Les_differents_types_de_navigators",
+            "B3_M09_013_L'animation_avec_React_Native",
+            "B3_M09_014_Installer_les_emulateurs",
+            "B3_M09_015_Utiliser_une_base_donnees_locale _ SQLITE",
+            "B3_M09_016_Les_APIs_React_Native_et_modules_natifs",
+            "B3_M09_017_Le_debugging",
+            "B3_M09_018_Le_deploiement_d'une_application_sur_les_stores",
+            "B3_M09_019_Creer_une_application_React_Native_sans_Expo",
+            "B3_M09_020_Projet_-_Developper_une_application_mobile_avec_React_Native",
+            "B3_M10_ Module : Concevoir une API",
+            "B3_M10_001_Presentation_des_API",
+            "B3_M10_002_Concevoir_une_API",
+            "B3_M10_003_Gerer_les_acces_a_une_API",
+            "B3_M11_ Module : Utiliser des API",
+            "B3_M11_001_Les_API_d'authentification",
+            "B3_M11_002_Les_API_Google_/_AWS",
+            "B3_M11_003_Les_API_de_paiement",
+            "B3_M11_004_Application _ Realiser_une_application_web",
+            "B3_M12_ Module : Utiliser un outil de gestion de version de code source",
+            "B3_M12_001_Introduction_a_la_ligne_de_commande",
+            "B3_M12_002_Introduction_a_Git_et_Github",
+            "B3_M12_003_Les_bases",
+            "B3_M12_004_Les_interactions_avec_le_depot_distant",
+            "B3_M12_005_Naviguer_dans_l'historique",
+            "B3_M12_006_La_gestion_des_branches",
+            "B3_M12_007_Les_branches_avec_Git_-_Rebaser",
+            "B3_M12_008_Les_bonnes_pratiques",
+            "B3_M12_009_Projet_-_Utiliser_Git_et_Github_pour_gerer_son_code_source",
+            "B3_M12_010_Introduction_a_Gitlab",
+            "B3_M13_ Module : Maintenir et documenter son projet",
+            "B3_M13_001_Ameliorer_sa_solution",
+            "B3_M13_002_La_documentation_pour_l'utilisateur",
+            "B3_M13_003_Le_pentest",
+            "B3_M13_004_Gestion_de_la_dette_technique",
+            "B3_M13_005_Documentation_de_l'architecture_et_du_code",
+            "B3_M13_006_Application _ Versionner_et_ameliorer_sa_solution_en_continu"
         ];
 
         let courseData = {}; // Objet structuré des données du cours
@@ -828,51 +917,41 @@
                     return;
                 }
 
-                if (line.startsWith('B') && line.includes('_Bloc_')) {
-                    // C'est un titre de bloc
-                    const blockMatch = line.match(/^(B\d+)_Bloc_(.*)$/);
-                    if (blockMatch) {
-                        const blockId = blockMatch[1];
-                        const blockTitleRaw = blockMatch[2];
-                        const blockTitle = blockTitleRaw.replace(/_/g, ' ').trim();
-                        course[blockId] = {
-                            id: blockId,
-                            title: `Bloc ${blockId.substring(1)} : ${blockTitle}`,
-                            modules: {}
-                        };
-                        currentBlockId = blockId;
-                        currentModuleId = null; // Réinitialise le module pour un nouveau bloc
-                    }
-                } else if (line.startsWith('B') && line.includes('_M') && line.includes('_ Module _')) {
-                    // C'est un titre de module
+                // Regex plus flexible pour capturer les titres de blocs et modules
+                const blockMatch = line.match(/^(B\d+)\s*-\s*Bloc\s*:\s*(.*)$/);
+                const moduleMatch = line.match(/^(B\d+_M\d+)\s*_\s*Module\s*:\s*(.*)$/);
+                const themeMatch = line.match(/^(B\d+_M\d+_\d{3}_)(.*)$/);
+
+
+                if (blockMatch) {
+                    const blockId = blockMatch[1];
+                    const blockTitle = blockMatch[2].replace(/_/g, ' ').trim();
+                    course[blockId] = {
+                        id: blockId,
+                        title: `${blockId} : ${blockTitle}`,
+                        modules: {}
+                    };
+                    currentBlockId = blockId;
+                    currentModuleId = null; // Réinitialise le module pour un nouveau bloc
+                } else if (moduleMatch) {
                     if (currentBlockId) {
-                        const moduleMatch = line.match(/^(B\d+_M\d+)_ Module _(.*)$/);
-                        if (moduleMatch) {
-                            const moduleId = moduleMatch[1];
-                            const moduleTitleRaw = moduleMatch[2];
-                            const moduleTitle = moduleTitleRaw.replace(/_/g, ' ').trim();
-                            course[currentBlockId].modules[moduleId] = {
-                                id: moduleId,
-                                title: `Module ${moduleId.substring(4)}: ${moduleTitle}`,
-                                themes: []
-                            };
-                            currentModuleId = moduleId;
-                        }
+                        const moduleId = moduleMatch[1];
+                        const moduleTitle = moduleMatch[2].replace(/_/g, ' ').trim();
+                        course[currentBlockId].modules[moduleId] = {
+                            id: moduleId,
+                            title: `${moduleId.substring(4)} : ${moduleTitle}`, // Garde le "M01" etc.
+                            themes: []
+                        };
+                        currentModuleId = moduleId;
                     }
-                } else if (line.startsWith('B') && line.includes('_M') && line.match(/_M\d{2}_\d{3}_/)) {
-                    // C'est un thème
+                } else if (themeMatch) {
                     if (currentBlockId && currentModuleId) {
-                        const themeMatch = line.match(/^(B\d+_M\d+_\d{3}_)(.*)$/);
-                        if (themeMatch) {
-                            // L'ID du thème est la chaîne complète pour l'unicité
-                            const themeId = line;
-                            const themeTitleRaw = themeMatch[2];
-                            const themeTitle = themeTitleRaw.replace(/_/g, ' ').trim();
-                            course[currentBlockId].modules[currentModuleId].themes.push({
-                                id: themeId, // Utilise la chaîne originale complète comme ID unique
-                                title: themeTitle
-                            });
-                        }
+                        const themeId = line; // Utilise la chaîne originale complète comme ID unique
+                        const themeTitle = themeMatch[2].replace(/_/g, ' ').trim();
+                        course[currentBlockId].modules[currentModuleId].themes.push({
+                            id: themeId,
+                            title: themeTitle
+                        });
                     }
                 }
             });
@@ -987,7 +1066,7 @@
                     const blockItem = document.createElement('div');
                     blockItem.classList.add('block-item');
                     blockItem.innerHTML = `
-                        <span>${block.title.split(':')[0]} :</span>
+                        <span>${block.id} :</span>
                         <div class="progress-container">
                             <div class="progress-bar" style="width: ${blockProgress}%;"></div>
                             <span class="progress-text">${blockProgress}%</span>
@@ -1025,27 +1104,70 @@
          * Rend le contenu de la page d'accueil.
          */
         function renderHomePage() {
+            const homeContentDiv = document.getElementById('home-content');
+            if (!homeContentDiv) return;
+
+            // Build the HTML string for the home page content
+            let html = `
+                <h2>Vos Informations Personnelles & Progression Globale 🎯</h2>
+
+                <h3 class="pink-title">Progression par Bloc :</h3>
+                <div id="block-overall-progress" class="block-progress-summary">
+                    <!-- Les résumés de progression par bloc seront insérés ici par JavaScript -->
+                </div>
+
+                <h3>Progression Globale du Bachelor :</h3>
+                <div class="progress-container">
+                    <div id="overall-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                    <span id="overall-progress-text" class="progress-text">0%</span>
+                </div>
+
+                <form id="user-info-form">
+                    <div class="form-group">
+                        <label for="lastName">Nom :</label>
+                        <input type="text" id="lastName" placeholder="Votre nom">
+                    </div>
+                    <div class="form-group">
+                        <label for="firstName">Prénom :</label>
+                        <input type="text" id="firstName" placeholder="Votre prénom">
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Date de Naissance :</label>
+                        <input type="date" id="dob">
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Début Formation :</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">Fin Formation :</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="examDate">Date Examen :</label>
+                        <input type="date" id="examDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="resultsDate">Retour Résultats :</label>
+                        <input type="date" id="resultsDate">
+                    </div>
+                </form>
+            `;
+
+            homeContentDiv.innerHTML = html;
+
+            // Now, get the form elements from the newly rendered HTML
             const form = document.getElementById('user-info-form');
-            if (!form) return;
+            if (form) { // Check if form exists after rendering
+                form.querySelectorAll('input').forEach(input => {
+                    input.onchange = (event) => {
+                        userData.userInfo[event.target.id] = event.target.value;
+                        saveData();
+                    };
+                });
+            }
 
-            // Remplit les champs du formulaire avec les données utilisateur
-            document.getElementById('lastName').value = userData.userInfo.lastName;
-            document.getElementById('firstName').value = userData.userInfo.firstName;
-            document.getElementById('dob').value = userData.userInfo.dob;
-            document.getElementById('startDate').value = userData.userInfo.startDate;
-            document.getElementById('endDate').value = userData.userInfo.endDate;
-            document.getElementById('examDate').value = userData.userInfo.examDate;
-            document.getElementById('resultsDate').value = userData.userInfo.resultsDate;
-
-            // Ajoute des écouteurs d'événements pour les changements dans les champs du formulaire
-            form.querySelectorAll('input').forEach(input => {
-                input.onchange = (event) => {
-                    userData.userInfo[event.target.id] = event.target.value;
-                    saveData();
-                };
-            });
-
-            updateProgressBars(); // Assure que les barres de progression sont à jour sur la page d'accueil
+            updateProgressBars(); // Ensure progress bars are updated after rendering
         }
 
         /**
@@ -1067,16 +1189,25 @@
             `;
 
             Object.values(block.modules).forEach(module => {
+                // Par défaut, tous les modules sont dépliés. Ajoutez 'collapsed' pour les replier au chargement.
+                const isModuleCollapsed = false; // Changez à true pour replier par défaut
+                const moduleCollapsedClass = isModuleCollapsed ? 'collapsed' : '';
+                const toggleIcon = isModuleCollapsed ? '▶️' : '🔽'; // Flèche droite pour replié, bas pour déplié
+
                 html += `
-                    <div class="module-section">
-                        <h4>
-                            ${module.title}
-                            <span id="module-${module.id}-progress-text" class="module-progress-text">0%</span>
-                        </h4>
-                        <div class="progress-container module-progress-bar-container">
-                            <div id="module-${module.id}-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                    <div class="module-section ${moduleCollapsedClass}">
+                        <div class="module-header" data-module-id="${module.id}">
+                            <span>${module.title}</span>
+                            <div style="display: flex; align-items: center;">
+                                <span id="module-${module.id}-progress-text" class="module-progress-text">0%</span>
+                                <span class="toggle-icon">${toggleIcon}</span>
+                            </div>
                         </div>
-                        <ul class="theme-list">
+                        <div class="module-content">
+                            <div class="progress-container module-progress-bar-container">
+                                <div id="module-${module.id}-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                            </div>
+                            <ul class="theme-list">
                 `;
                 module.themes.forEach(theme => {
                     // Utilise le theme.id complet pour l'attribut data-theme-id et pour la vérification
@@ -1091,7 +1222,8 @@
                     `;
                 });
                 html += `
-                        </ul>
+                            </ul>
+                        </div>
                     </div>
                 `;
             });
@@ -1114,6 +1246,22 @@
                     saveData();
                     calculateProgress(); // Recalcule et met à jour toutes les barres de progression
                 };
+            });
+
+            // Ajoute des écouteurs d'événements aux en-têtes de module pour les rendre repliables
+            blockContentDiv.querySelectorAll('.module-header').forEach(header => {
+                header.addEventListener('click', (event) => {
+                    const moduleSection = header.closest('.module-section');
+                    const toggleIcon = header.querySelector('.toggle-icon');
+
+                    if (moduleSection.classList.contains('collapsed')) {
+                        moduleSection.classList.remove('collapsed');
+                        toggleIcon.textContent = '🔽'; // Flèche vers le bas
+                    } else {
+                        moduleSection.classList.add('collapsed');
+                        toggleIcon.textContent = '▶️'; // Flèche vers la droite
+                    }
+                });
             });
 
             updateProgressBars(); // Assure que les barres de progression sont à jour pour ce bloc spécifique
@@ -1154,6 +1302,27 @@
                 renderBlockPage(tabName);
             }
         }
+
+        // --- Gestion du bouton "Retour en haut" ---
+        const scrollToTopButton = document.getElementById('scroll-to-top');
+
+        // Affiche ou cache le bouton en fonction du défilement
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) { // Affiche le bouton après 200px de défilement
+                scrollToTopButton.classList.add('show');
+            } else {
+                scrollToTopButton.classList.remove('show');
+            }
+        });
+
+        // Fait défiler la page vers le haut en douceur au clic
+        scrollToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Défilement doux
+            });
+        });
+
 
         // --- Initialisation de l'application ---
         document.addEventListener('DOMContentLoaded', () => {
