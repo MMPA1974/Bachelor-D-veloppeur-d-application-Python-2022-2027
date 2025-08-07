@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi de Progression - Bachelor Développeur d'application Python</title>
+    <!-- Importation de la police 'Inter' de Google Fonts pour un look moderne -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Définition des variables CSS pour les couleurs et les styles */
+        :root {
+            --bg-dark: #1a202c; /* Couleur de fond principale (bleu nuit) */
+            --text-light: #e2e8f0; /* Couleur du texte clair */
+            --accent-blue: #63b3ed; /* Bleu vibrant pour les accents */
+            --accent-orange: #f6ad55; /* Orange chaud pour les accents */
+            --accent-red: #fc8181; /* Rouge clair chaud pour les accents */
+            --accent-green: #68d391; /* Vert clair chaud pour les accents */
+            --accent-purple: #a78bfa; /* Violet clair chaud pour les accents */
+            --card-bg: #2d3748; /* Fond légèrement plus clair pour les cartes/formulaires */
+            --border-color: #4a5568; /* Couleur des bordures et séparateurs */
+            --progress-track: #4a5568; /* Couleur de la piste des barres de progression */
+            --progress-fill: var(--accent-blue); /* Couleur de remplissage des barres de progression */
+        }
+
+        /* Styles généraux du corps de la page */
+        body {
+            font-family: 'Inter', sans-serif; /* Utilisation de la police Inter */
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Aligne le contenu en haut */
+            min-height: 100vh; /* Hauteur minimale de 100% de la vue */
+            box-sizing: border-box; /* Inclut le padding et la bordure dans la largeur/hauteur */
+        }
+
+        /* Conteneur principal de l'application */
+        .app-container {
+            background-color: var(--card-bg);
+            border-radius: 15px; /* Coins arrondis */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Ombre portée */
+            padding: 30px;
+            max-width: 900px; /* Largeur maximale */
+            width: 100%; /* Prend toute la largeur disponible */
+            box-sizing: border-box;
+            overflow: hidden; /* Cache le contenu qui dépasse */
+        }
+
+        /* Styles de l'en-tête */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: var(--accent-blue);
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Ombre sur le texte pour un effet "pop" */
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: var(--text-light);
+            opacity: 0.8;
+        }
+
+        /* Styles de la barre d'onglets */
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            background-color: var(--border-color);
+            border-radius: 10px;
+            padding: 5px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2); /* Ombre interne pour un effet de profondeur */
+        }
+
+        .tab-button {
+            flex-grow: 1; /* Les boutons prennent l'espace disponible de manière égale */
+            padding: 15px 10px;
+            border: none;
+            background-color: transparent;
+            color: var(--text-light);
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease; /* Transition douce pour les changements de style */
+            text-align: center;
+            white-space: nowrap; /* Empêche le texte de s'enrouler */
+            overflow: hidden; /* Cache le débordement de texte */
+            text-overflow: ellipsis; /* Ajoute des points de suspension si le texte est trop long */
+        }
+
+        .tab-button:hover {
+            background-color: var(--border-color); /* Légèrement plus foncé au survol */
+            color: var(--accent-orange); /* Couleur chaude au survol */
+        }
+
+        .tab-button.active {
+            background-color: var(--accent-blue); /* Couleur d'accent pour l'onglet actif */
+            color: var(--text-light);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px); /* Léger décalage vers le haut pour l'onglet actif */
+        }
+
+        /* Gestion de l'affichage des contenus d'onglet */
+        .tab-content {
+            display: none; /* Cache par défaut */
+            padding: 20px 0;
+        }
+
+        .tab-content.active {
+            display: block; /* Affiche l'onglet actif */
+        }
+
+        /* Styles des titres de section */
+        h2, h3 {
+            color: var(--accent-green); /* Couleur vibrante pour les titres de section */
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color); /* Ligne de séparation */
+            padding-bottom: 10px;
+        }
+
+        /* Styles du formulaire */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--accent-orange); /* Couleur chaude pour les étiquettes de formulaire */
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"] {
+            width: calc(100% - 20px); /* Prend 100% de la largeur moins le padding */
+            padding: 12px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-dark); /* Fond plus foncé pour les champs de saisie */
+            color: var(--text-light);
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="date"]:focus {
+            border-color: var(--accent-blue); /* Bordure bleue au focus */
+            outline: none; /* Supprime l'outline par défaut */
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.5); /* Ombre lumineuse au focus */
+        }
+
+        /* Styles des barres de progression */
+        .progress-container {
+            width: 100%;
+            background-color: var(--progress-track);
+            border-radius: 10px;
+            overflow: hidden; /* Cache le débordement de la barre de remplissage */
+            height: 30px;
+            margin-top: 10px;
+            position: relative;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--progress-fill);
+            width: 0%; /* La largeur est contrôlée par JavaScript */
+            border-radius: 10px;
+            transition: width 0.5s ease-out; /* Animation douce lors du changement de largeur */
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* Aligne le texte à droite à l'intérieur de la barre */
+            padding-right: 10px;
+            box-sizing: border-box;
+        }
+
+        .progress-text {
+            position: absolute;
+            right: 10px;
+            color: var(--text-light);
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            z-index: 1; /* Assure que le texte est au-dessus de la barre */
+        }
+
+        /* Résumé de la progression par bloc sur la page d'accueil */
+        .block-progress-summary .block-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .block-progress-summary .block-item span {
+            width: 120px; /* Largeur fixe pour le nom du bloc */
+            font-weight: bold;
+            color: var(--accent-purple); /* Une autre couleur vibrante */
+            flex-shrink: 0; /* Empêche le texte de rétrécir */
+        }
+
+        .block-progress-summary .progress-container {
+            flex-grow: 1; /* La barre de progression prend l'espace restant */
+            margin-left: 15px;
+        }
+
+        /* Styles du contenu des blocs (modules et thèmes) */
+        .module-section {
+            background-color: var(--bg-dark); /* Fond plus foncé pour les cartes de module */
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .module-section h4 {
+            color: var(--accent-red); /* Couleur vibrante pour les titres de module */
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Espace entre le titre et le pourcentage */
+        }
+
+        .module-section h4 .module-progress-text {
+            font-size: 0.9em;
+            color: var(--text-light);
+            opacity: 0.9;
+        }
+
+        .module-progress-bar-container {
+            margin-bottom: 15px; /* Espace sous la barre de progression du module */
+        }
+
+        .theme-list {
+            list-style: none; /* Supprime les puces de liste */
+            padding: 0;
+            margin: 0;
+        }
+
+        .theme-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color); /* Ligne pointillée de séparation */
+        }
+
+        .theme-list li:last-child {
+            border-bottom: none; /* Pas de bordure pour le dernier élément */
+        }
+
+        .theme-list input[type="checkbox"] {
+            margin-right: 10px;
+            /* Styles personnalisés pour la checkbox */
+            appearance: none; /* Supprime l'apparence par défaut du navigateur */
+            -webkit-appearance: none; /* Pour Safari */
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-blue); /* Bordure bleue */
+            border-radius: 4px;
+            background-color: transparent;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0; /* Empêche la checkbox de rétrécir */
+        }
+
+        .theme-list input[type="checkbox"]:checked {
+            background-color: var(--accent-blue); /* Fond bleu quand cochée */
+            border-color: var(--accent-blue);
+        }
+
+        .theme-list input[type="checkbox"]:checked::after {
+            content: '✔'; /* Coche personnalisée */
+            color: var(--text-light);
+            font-size: 14px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centre la coche */
+        }
+
+        .theme-list label {
+            flex-grow: 1; /* Le label prend l'espace restant */
+            cursor: pointer;
+            font-size: 1.05em;
+            color: var(--text-light);
+        }
+
+        /* Ajustements responsifs pour les petits écrans */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 20px;
+            }
+
+            .tabs {
+                flex-wrap: wrap; /* Les onglets passent à la ligne */
+                gap: 5px; /* Espacement entre les onglets */
+            }
+
+            .tab-button {
+                flex-basis: calc(50% - 5px); /* Deux boutons par ligne */
+                font-size: 0.9em;
+                padding: 12px 8px;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            .form-group input {
+                width: calc(100% - 20px); /* Ajustement pour les inputs */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tab-button {
+                flex-basis: 100%; /* Un bouton par ligne sur les très petits écrans */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- En-tête de l'application -->
+        <header>
+            <h1>Suivi de Progression 🚀</h1>
+            <p>Bachelor Développeur d'application Python 2022-2027</p>
+        </header>
+
+        <!-- Barre de navigation avec les onglets -->
+        <nav class="tabs">
+            <button class="tab-button active" data-tab="home">Accueil 🏠</button>
+            <button class="tab-button" data-tab="B1">Bloc 1 💡</button>
+            <button class="tab-button" data-tab="B2">Bloc 2 ⚙️</button>
+            <button class="tab-button" data-tab="B3">Bloc 3 🐍</button>
+        </nav>
+
+        <!-- Zone de contenu principale qui changera en fonction de l'onglet sélectionné -->
+        <main class="content-area">
+            <!-- Section Accueil -->
+            <section id="home-content" class="tab-content active">
+                <h2>Vos Informations Personnelles & Progression Globale 🎯</h2>
+                <form id="user-info-form">
+                    <div class="form-group">
+                        <label for="lastName">Nom :</label>
+                        <input type="text" id="lastName" placeholder="Votre nom">
+                    </div>
+                    <div class="form-group">
+                        <label for="firstName">Prénom :</label>
+                        <input type="text" id="firstName" placeholder="Votre prénom">
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Date de Naissance :</label>
+                        <input type="date" id="dob">
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Début Formation :</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">Fin Formation :</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="examDate">Date Examen :</label>
+                        <input type="date" id="examDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="resultsDate">Retour Résultats :</label>
+                        <input type="date" id="resultsDate">
+                    </div>
+                </form>
+
+                <h3>Progression Globale du Bachelor :</h3>
+                <div class="progress-container">
+                    <div id="overall-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                    <span id="overall-progress-text" class="progress-text">0%</span>
+                </div>
+
+                <h3>Progression par Bloc :</h3>
+                <div id="block-overall-progress" class="block-progress-summary">
+                    <!-- Les résumés de progression par bloc seront insérés ici par JavaScript -->
+                </div>
+            </section>
+
+            <!-- Sections pour les Blocs 1, 2 et 3 (le contenu sera généré dynamiquement par JavaScript) -->
+            <section id="B1-content" class="tab-content"></section>
+            <section id="B2-content" class="tab-content"></section>
+            <section id="B3-content" class="tab-content"></section>
+        </main>
+    </div>
+
+    <script>
+        // script.js
+
+        // Données brutes du cours fournies par l'utilisateur
+        const rawCourseData = [
+            "Bachelor Développeur d'application Python 2022-2027",
+            "B1_Bloc_Conception_et_specification_d'une_solution_digitale",
+            "B1_M01_ Module _ Bienvenue",
+            "B1_M01_001_Guide_du_bloc_Conception_et_specification_d'une_solution_digitale",
+            "B1_M01_002_ Comment_et_pourquoi_se_former_a_la_conception_et_specification_d'une_solution_digitale",
+            "B1_M02_ Module _ Analyser_les_besoins_client_et_identifier_les_solutions_adaptees",
+            "B1_M02_001_ Comment_et_pourquoi_se_former_a_la_conception_et_specification_d'une_solution_digitale",
+            "B1_M02_002_La_veille_et_l'innovation",
+            "B1_M02_003_ Les_modes_d'innovation",
+            "B1_M02_004_ Les_entreprises_et_l'innovation",
+            "B1_M02_005_ La_creativite,_moteur_de_l'innovation",
+            "B1_M02_006_ Panorama_des_techniques_de_creativite",
+            "B1_M02_007_ L'ecosysteme_d'un_projet_digital",
+            "B1_M02_008_ Etude_comparative,_le_benchmark_des_solutions_existantes",
+            "B1_M02_009_ Definir_la_cible_de_la_solution_digitale",
+            "B1_M02_010_ Les_principaux_acteurs_d’un_projet_digital _ la_maitrise_d’oeuvre",
+            "B1_M02_011_ Les_principaux_acteurs_d’un_projet_digital _ la_maitrise_d’ouvrage",
+            "B1_M02_012_ Identifier_les_parties_prenantes",
+            "B1_M02_013_ Etablir_la_gouvernance_du_projet,_definir_les_roles_et_les_responsabilites",
+            "B1_M02_014_ Comprendre_les_enjeux_et_les_retombees_d’un_projet",
+            "B1_M02_015_ Le_cahier_des_charges _ l'expression_du_besoin",
+            "B1_M03_ Module _ Definir_les_options_techniques_de_la_solution_digitale",
+            "B1_M03_001_ Les_specificites_du_projet_digital",
+            "B1_M03_002_ Le_recueil_et_l'analyse_des_besoins",
+            "B1_M03_003_ Definir_la_solution_et_le_projet_cibles",
+            "B1_M03_004_ Definir_les_objectifs_et_faire_valider_l’opportunite_du_projet",
+            "B1_M03_005_ Le_choix_technologique_de_la_solution",
+            "B1_M03_006_ Le_cahier_des_charges_technique _ detailler_la_mise_en_oeuvre",
+            "B1_M03_007_ Le_cahier_des_charges_technique _ du_besoin_a_la_solution_technique",
+            "B1_M03_008_ Le_cahier_des_charges_technique _ description_fonctionnelle_et_technique",
+            "B1_M03_009_ La_presentation_et_la_validation_de_sa_solution",
+            "B1_M03_010_ L'utilisation_en_interne_du_CDC",
+            "B1_M04_ Module _ Realiser_une_maquette_avec_Figma",
+            "B1_M04_001_ Prendre_en_main_Figma_et_son_interface",
+            "B1_M04_002_ Importer_et_exporter_des_fichiers_sur_Figma",
+            "B1_M04_003_ Creer_des_composants_sur_Figma",
+            "B1_M04_004_ Utiliser_les_composants_animes_sur_Figma",
+            "B1_M04_005_ Creer_un_design_responsive_sur_Figma",
+            "B1_M04_006_ Creer_un_prototype,_le_partager_et_l'exporter_avec_Figma",
+            "B1_M04_007_ Prendre_en_compte_l'accessibilite_visuelle_sur_Figma",
+            "B1_M04_008_ Collaborer_avec_Figma",
+            "B1_M04_009_ Projet _ Realiser_la_maquette_d'une_application_web_responsive",
+            "B1_M05_ Module _ Definir_la_methodologie,_la_roadmap,_les_ressources_et_les_livrables",
+            "B1_M05_001_ Introduction_a_l'organisation_d'un_projet_digital",
+            "B1_M05_002_ Methodologie_pour_piloter_un_projet_digital _ une_demarche_iterative",
+            "B1_M05_003_ Le_role_du_chef_de_projet_digital",
+            "B1_M05_004_ Les_modes_de_gestion_de_projet_dits_\"classiques\"",
+            "B1_M05_005_ Les_methodologies_agiles",
+            "B1_M05_006_ Les_processus_et_les_disciplines_de_la_gestion_de_projet_selon_le_PMBOK",
+            "B1_M05_007_ Les_acteurs_et_les_ressources_du_projet",
+            "B1_M05_008_ La_premiere_decoupe_du_projet",
+            "B1_M05_009_ La_construction_du_planning",
+            "B1_M05_010_ La_gestion_du_budget_du_projet",
+            "B1_M05_011_ La_gestion_des_risques",
+            "B1_M05_012_ La_communication_autour_du_projet",
+            "B1_M06_ Module _ Concevoir_une_solution_digitale",
+            "B1_M06_001_ La_realisation_d'une_etude_d'opportunite",
+            "B1_M06_002_ Le_role_de_la_note_de_cadrage",
+            "B1_M06_003_ L'etude_de_faisabilite",
+            "B1_M06_004_ L'analyse_des_risques",
+            "B1_M06_005_ L'analyse_fonctionnelle",
+            "B1_M06_006_ Les_outils_essentiels_a_la_proposition_d’une_solution_optimale",
+            "B1_M06_007_ Proposer_une_solution_optimale_en_termes_de_cout",
+            "B1_M06_008_ Proposer_une_solution_optimale_en_termes_de_performance_attendue",
+            "B1_M06_009_ Proposer_une_solution_optimale_en_termes_de_perennite",
+            "B1_M06_010_ L'utilite_du_suivi_de_la_performance",
+            "B1_M06_011_ Les_indicateurs_de_suivi_selon_les_objectifs",
+            "B1_M06_012_ La_construction_d'un_tableau_de_bord_operationnel",
+            "B1_M07_ Module _ Decouvrir_les_methodologies_de_gestion_de_projets_agiles",
+            "B1_M07_001_ Les_methodologies_agiles",
+            "B1_M07_002_ Introduction_a_la_methode_Scrum",
+            "B1_M07_003_ Presentation_du_diagramme_de_Gantt",
+            "B1_M07_004_ Etude_fictive_d'un_projet _ concevoir_un_projet_digital_en_proposant_une_solution_optimale",
+            "B1_M08_ Module _ Concevoir_l’architecture_logicielle_de_la_solution",
+            "B1_M08_001_ L’architecture_en_appels_et_retours",
+            "B1_M08_002_ L’architecture_en_couches",
+            "B1_M08_003_ L’architecture_centree_sur_les_donnees",
+            "B1_M08_004_ L’architecture_en_flot_de_donnees",
+            "B1_M08_005_ L’architecture_orientee_objets",
+            "B1_M08_006_ L’architecture_orientee_agents",
+            "B1_M09_ Module _ Comprendre_la_specification_fonctionnelle",
+            "B1_M09_001_ Comprendre_les_objectifs_de_la_specification_fonctionnelle",
+            "B1_M09_002_ Comment_rediger_une_specification_fonctionnelle",
+            "B1_M10_ Module _ Elaborer_un_cahier_des_charges_fonctionnel",
+            "B1_M10_001_ Le_cahier_des_charges_fonctionnel _ le_contexte_du_projet_et_ses_enjeux",
+            "B1_M10_002_ Le_cahier_des_charges_fonctionnel _ la_portee_de_la_solution",
+            "B1_M10_003_ Le_cahier_des_charges_fonctionnel _ les_contraintes",
+            "B1_M10_004_ Le_cahier_des_charges_fonctionnel _ les_parcours_utilisateurs",
+            "B1_M10_005_ Le_cahier_des_charges_fonctionnel _ les_fonctionnalites_cles_et_les_specifications",
+            "B1_M10_006_ Le_cahier_des_charges_fonctionnel _ l'approche_creative",
+            "B1_M10_007_ Le_cahier_des_charges_fonctionnel _ l'organisation_du_projet",
+            "B1_M10_008_ Creation_d'un_cahier_des_charges",
+            "B1_M11_ Module _ Definir_les_objectifs_SMART_de_sa_solution_digitale",
+            "B1_M11_001_ La_validation_de_la_solution",
+            "B1_M11_002_ Le_droit_du_web",
+            "B1_M11_003_ Definition_du_droit_numerique",
+            "B1_M11_004_ Les_responsabilites_des_intervenants",
+            "B1_M11_005_ Le_droit_penal_de_l'informatique",
+            "B1_M11_006_ L'informatique_sur_le_lieu_de_travail",
+            "B1_M11_007_ La_legislation_comparee",
+            "B1_M11_008_ L'informatique_et_le_droit_public",
+            "B1_M11_009_ Le_cadre_juridique_du_e-commerce",
+            "B1_M11_010_ Les_textes_de_reference",
+            "B2_ Bloc _ Gestion,_pilotage_et_testing_d'une_Solution_Digitale",
+            "B2_M01_ Module _ Bienvenue",
+            "B2_M01_001_ Guide_du_bloc_Gestion,_pilotage_et_testing_d'une_Solution_Digitale",
+            "B2_M01_002_ Comment_et_pourquoi_se_former_a_la_gestion,_pilotage_et_testing_d'une_Solution_Digitale",
+            "B2_M02_ Module _ Utiliser_l'outil_Agile _ Scrum",
+            "B2_M02_001_ Le_manifeste_Agile_et_la_theorie_de_Scrum",
+            "B2_M02_002_ L'equipe_Scrum",
+            "B2_M02_003_ La_valeur_et_le_product_backlog",
+            "B2_M02_004_ La_gestion_des_iterations_en_Scrum",
+            "B2_M02_005_ La_gestion_des_flux_de_travail_et_de_valeur",
+            "B2_M02_006_ La_chaine_d'integration_et_de_livraisons_continues",
+            "B2_M02_007_ Les_regles_d'equipe",
+            "B2_M02_008_ Les_evenements_Agile_vus_par_le_developpeur",
+            "B2_M03_ Module _ Utiliser_l'outil_Agile _ Kanban",
+            "B2_M03_001_ Comprendre_Kanban",
+            "B2_M03_002_ Pratiquer_Kanban_avec_ses_equipes",
+            "B2_M04_ Module _ Manager_et_piloter_les_taches_avec_ses_equipes_projet_grace_a_TRELLO",
+            "B2_M04_001_ Decouverte_des_offres_Trello",
+            "B2_M04_002_ Creer_un_compte_Trello",
+            "B2_M04_003_ Configurer_un_espace_de_travail",
+            "B2_M04_004_ Contenu_d'un_projet_Trello",
+            "B2_M04_005_ Les_niveaux_de_visibilite_d'un_tableau",
+            "B2_M04_006_ Inviter_un_membre_a_un_tableau",
+            "B2_M04_007_ Ajouter_un_membre_a_une_carte",
+            "B2_M04_008_ Gerer_les_membres_d'un_espace_de_travail",
+            "B2_M04_009_ Parametrer_un_tableau",
+            "B2_M04_010_ Gerer_les_listes",
+            "B2_M04_011_ Ajouter_des_dates_a_une_carte",
+            "B2_M04_012_ Les_actions_de_la_carte",
+            "B2_M04_013_ Creer_une_checklist",
+            "B2_M04_014_ Suivre_l'avancement_d'une_checklist",
+            "B2_M04_015_ Decouvrir_les_Power-ups",
+            "B2_M04_016_ Utiliser_un_Power-up _ Google_Drive",
+            "B2_M04_017_ Application_-_Cas_pratique_Trello",
+            "B2_M05_ Module _ Manager_et_piloter_les_taches_avec_ses_equipes_projet_grace_a_JIRA",
+            "B2_M05_001_ Decouvrir_JIRA",
+            "B2_M05_002_ Apprendre_JIRA",
+            "B2_M05_003_ Les_methodologies_agiles_avec_JIRA",
+            "B2_M05_004_ JIRA_pour_les_equipes",
+            "B2_M05_005_ JIRA_pour_les_administrateurs",
+            "B2_M05_006_ Utiliser_JIRA_avec_Gitlab",
+            "B2_M06_ Module _ Gerer_son_projet_avec_GanttProject",
+            "B2_M06_001_ Apprendre_a_utiliser_Gantt_project",
+            "B2_M06_002_ Cadrer_le_projet",
+            "B2_M06_003_ Construire_le_plan_de_projet",
+            "B2_M06_004_ Creation_des_dependances",
+            "B2_M06_005_ Gerer_les_affichages",
+            "B2_M06_006_ Le_reseau_du_projet",
+            "B2_M06_007_ Gerer_les_ressources",
+            "B2_M06_008_ Le_suivi_de_projet",
+            "B2_M06_009_ Les_outils_d'impression_et_d'exportation",
+            "B2_M06_010_ Application_-Gestion_de_projet-_GanttProject",
+            "B2_M07_ Module _ Comprendre_la_modelisation_UML",
+            "B2_M07_001_ Introduction_a_la_modelisation_conceptuelle_de_donnees_avec_UML",
+            "B2_M07_002_ Le_diagramme_de_classe",
+            "B2_M07_003_ Les_diagrammes_d'objets",
+            "B2_M07_004_ Les_diagrammes_de_composants",
+            "B2_M07_005_ Les_diagrammes_de_deploiement",
+            "B2_M07_006_ Les_diagrammes_des_paquets",
+            "B2_M07_007_ Les_diagrammes_de_structure_composite",
+            "B2_M07_008_ Les_diagrammes_de_profils",
+            "B2_M07_009_ Diagrammes_de_cas_d'utilisation_UML_(UML_use_case_diagram)",
+            "B2_M07_010_ Les_diagrammes_etats-transitions",
+            "B2_M07_011_ Les_diagrammes_d'activite",
+            "B2_M07_012_ Les_diagrammes_de_sequence",
+            "B2_M07_013_ Les_diagrammes_de_communication",
+            "B2_M07_014_ Les_diagrammes_global_d'interaction",
+            "B2_M07_015_ Les_diagrammes_de_temps",
+            "B2_M07_016_ Methodologie_agile_et_modelisation_a_l'aide_d'UML",
+            "B2_M08_ Module _ Tester_son_application_Web",
+            "B2_M08_001_ Les_test_unitaires",
+            "B2_M08_002_ Le_test_fonctionnel",
+            "B2_M08_003_ Les_tests_End_2_End",
+            "B2_M08_004_ Les_test_de_deploiements _ A/B_Testing,_evaluation_utilisateurs_et_metiers",
+            "B2_M08_005_ Les_Niveaux_de_test",
+            "B2_M08_006_ Les_Tests_des_composants",
+            "B2_M08_007_ Les_tests_d’integration_du_systeme",
+            "B2_M08_008_ La_mise_en_place_de_l'integration_continue_(CI)",
+            "B2_M08_009_ La_mise_en_place_de_la_livraison_ou_deploiement_continu_(CD)",
+            "B2_M08_010_ La_lecture_d'un_rapport_statistique_de_classification",
+            "B2_M09_ Module _ Realiser_des_tests_fonctionnels",
+            "B2_M09_001_ Les_tests_unitaires_avec_PHPUnit",
+            "B2_M09_002_ Les_tests_fonctionnels_avec_WebTestCase_et_Panther",
+            "B2_M09_003_ Les_tests_unitaires_avec_les_mocks",
+            "B2_M09_004_ Le_Test_Driven_Development",
+            "B2_M09_005_ Les_services",
+            "B2_M09_006_ L'Ajax_avec_Axios_et_Symfony",
+            "B2_M09_007_ Tests_d'integration_et_recette_fonctionnelle",
+            "B2_M09_008_ Mesurer_son_application",
+            "B2_M09_009_ La_realisation_d'un_test_fonctionnel",
+            "B2_M10_ Module _ Proposer_des_solutions_suite_a_un_audit",
+            "B2_M10_001_ La_resolution_d'une_situation_critique_pour_la_survie_du_projet",
+            "B2_M10_002_ Le_suivi_des_indicateurs_qualite_et_amelioration_continue",
+            "B2_M10_003_ Concevoir_la_solution_grace_au_Design_Thinking",
+            "B2_M10_004_ Design_Thinking _ La_phase_d’empathie,_la_comprehension_du_besoin",
+            "B2_M10_005_ Design_Thinking _ Definir_la_problematique",
+            "B2_M10_006_ Design_Thinking _ la_phase_d’ideation",
+            "B2_M10_007_ Design_Thinking _ La_phase_de_prototypage_de_la_solution",
+            "B2_M10_008_ Design_thinking _ La_phase_de_test_de_la_solution",
+            "B3_ Bloc _ Developpement_d'une_solution_digitale_avec_Python",
+            "B3_M01_ Module _ Introduction_au_Parcours_Python",
+            "B3_M01_001_ Guide_du_bloc_Developpement_d'une_solution_digitale_avec_Python",
+            "B3_M01_002_ Comment_et_pourquoi_se_former_au_developpement_d'une_solution_digitale_Python",
+            "B3_M02_ Module _ Piloter_la_production_de_contenus_digitaux",
+            "B3_M02_001_ Introduction_a_la_production_de_contenus_digitaux",
+            "B3_M02_002_ La_creation_de_contenu_digital_en_adequation_avec_sa_cible",
+            "B3_M02_003_ L'orientation_artistique_et_le_brief_creatif",
+            "B3_M02_004_ La_gestion_de_la_production_de_contenus_digitaux",
+            "B3_M02_005_ La_mise_en_place_operationnelle_de_sa_strategie_de_production_de_contenus",
+            "B3_M02_006_ La_proposition_de_production_de_contenu",
+            "B3_M02_007_ Le_workflow",
+            "B3_M03_ Module _ Creer_un_site_web_avec_HTML,_CSS_et_le_Framework_Bootstrap",
+            "B3_M03_001_ Introduction_HTML_et_CSS",
+            "B3_M03_002_ Syntaxe_generale_de_HTML",
+            "B3_M03_003_ L'organisation_du_texte",
+            "B3_M03_004_ Un_langage_hypertexte",
+            "B3_M03_005_ Le_multimedia_en_HTML",
+            "B3_M03_006_ Introduction_a_CSS3 _ Hello_world",
+            "B3_M03_007_ CSS3 _ Le_stylage_du_texte",
+            "B3_M03_008_ La_structuration_logique_en_HTML5_et_le_modele_de_boites_en_CSS3",
+            "B3_M03_009_ Les_selecteurs_CSS",
+            "B3_M03_010_ La_mise_en_page_avec_CSS",
+            "B3_M03_011_ La_creation_de_tableaux",
+            "B3_M03_012_ La_creation_de_formulaires",
+            "B3_M03_013_ Layout_avec_CSS_Grid",
+            "B3_M03_014_ Les_effets_avances_de_CSS",
+            "B3_M03_015_ Utiliser_des_documentations_CSS",
+            "B3_M03_016_ Le_responsive_design",
+            "B3_M03_017_ Valider_la_qualite_de_son_site",
+            "B3_M03_018_ L'installation_et_la_prise_en_main_du_framework_Bootstrap _ Hello_world",
+            "B3_M03_019_ La_grille_bootstrap",
+            "B3_M03_020_ Les_elements_bootstrap",
+            "B3_M03_021_ Les_composants_bootstrap",
+            "B3_M03_022_ Ouverture_vers_d'autres_framework_CSS",
+            "B3_M03_023_ SASS",
+            "B3_M03_024_ Le_referencement_des_sites_Web",
+            "B3_M03_025_ Deployer_son_site_sur_le_Web",
+            "B3_M04_ Module _ Les_fondamentaux_de_JavaScript_(facultatif)",
+            "B3_M04_001_ Introduction_a_javascript",
+            "B3_M04_002_ Syntaxe_et_integration_de_JS",
+            "B3_M04_003_ Les_variables_en_JS",
+            "B3_M04_004_ Les_operateurs",
+            "B3_M04_005_ Structures_de_controle_en_JS",
+            "B3_M04_006_ Les_boucles",
+            "B3_M04_007_ Les_fonctions_en_JS",
+            "B3_M04_008_ Les_types_de_donnees",
+            "B3_M04_009_ L'objet_JavaScript_Number",
+            "B3_M04_010_ Les_objets_JavaScrip_String_et_Array",
+            "B3_M04_011_ Les_objets_JS",
+            "B3_M04_012_ Les_classes_et_l'instanciation_d'objet",
+            "B3_M04_013_ L'objet_Date",
+            "B3_M04_014_ Introduction_au_Document_Object_Model",
+            "B3_M04_015_ Projet _ formulaire_dynamique_avec_JS",
+            "B3_M05_ Module _ Programmer_avec_Javascript",
+            "B3_M05_001_ JS_Browser_BOM_(window_-screen-Location-_History,_etc)",
+            "B3_M05_002_ Fonction_asynchrone_et_callback",
+            "B3_M05_003_ Le_format_JSON_et_AJAX",
+            "B3_M05_004_ Les_promesses",
+            "B3_M05_005_ Decouverte_des_patrons_de_conception",
+            "B3_M05_006_ JavaScript_Events",
+            "B3_M05_007_ Introduction_et_installation_de_TypeScript",
+            "B3_M05_008_ Type_de_donnee_avec_TypesScript",
+            "B3_M05_009_ Donnees_avancee_avec_TypeScript",
+            "B3_M05_010_ L'objet_avec_TypeScript",
+            "B3_M05_011_ JavaScript_Graphics",
+            "B3_M05_012_ JavaScript_Canvas",
+            "B3_M05_013_ La_Gestion_d'erreur",
+            "B3_M05_014_ Debug",
+            "B3_M05_015_ Les_bonnes_pratiques_de_la_programmation_avec_JS",
+            "B3_M05_016_ Projet _ Memory_game",
+            "B3_M06_ Module _ Creer_et_administrer_une_base_de_donnees_relationnelle",
+            "B3_M06_001_ Introduction_generale_aux_bases_de_donnees,_notion_de_SGBDR",
+            "B3_M06_002_ Modele_conceptuel_de_donnees_et_modele_logique_de_donnees",
+            "B3_M06_003_ Les_diagrammes_fonctionnels",
+            "B3_M06_004_ Introduction_au_passage_UML-Relationnel",
+            "B3_M06_005_ Creation_et_alimentation_de_bases_de_donnees_SQL",
+            "B3_M06_006_ L'interrogation_de_bases_de_donnees_SQL",
+            "B3_M06_007_ Decouvrez_un_autre_SGBDR _ PostgreSQL",
+            "B3_M06_008_ Connexion_a_la_base_de_donnees_en_PHP",
+            "B3_M06_009_ PHP/PDO _ acces_en_lecture/ecriture",
+            "B3_M06_010_ Les_requetes_SQL",
+            "B3_M06_011_ Les_fonctions_SQL",
+            "B3_M06_012_ Les_jointures_SQL",
+            "B3_M06_013_ Gerer_les_acces_des_utilisateurs_au_niveau_PHP_et_BD",
+            "B3_M06_014_ Decouverte_d'un_ORM_PHP",
+            "B3_M06_015_ Projet _ Creer_et_administrer_une_base_de_donnees",
+            "B3_M07_ Module _ Creer_et_administrer_une_base_de_donnees_non_relationnelle",
+            "B3_M07_001_ Introduction_NOSQL",
+            "B3_M07_002_ Introduction_a_MongoDB",
+            "B3_M08_ Module _ Developper_une_application_web_avec_Python",
+            "B3_M08_001_ L'interpreteur_de_commande_Python",
+            "B3_M08_002_ Environnements_de_travail",
+            "B3_M08_003_ Les_variables_et_types_de_donnees",
+            "B3_M08_004_ Chaine_de_caracteres_en_Python",
+            "B3_M08_005_ Structures_de_controle",
+            "B3_M08_006_ Les_structures_de_donnees_en_Python",
+            "B3_M08_007_ Structure_d'un_programme_-_fonctions",
+            "B3_M08_008_ Ameliorer_la_qualite_du_code",
+            "B3_M08_009_ Structure_d'un_programme_-_modules",
+            "B3_M08_010_ Ameliorer_la_qualite_du_code_-_les_tests_unitaires",
+            "B3_M08_011_ Notion_theorique_de_classe",
+            "B3_M08_012_ Constructeur_et_mot-cle_self",
+            "B3_M08_013_ Les_methodes_speciales",
+            "B3_M08_014_ L'heritage",
+            "B3_M08_015_ La_notion_de_decorateur_en_Python",
+            "B3_M08_016_ Gestion_du_temps_en_Python",
+            "B3_M08_017_ Mathematiques_en_Python",
+            "B3_M08_018_ Notebooks_python",
+            "B3_M08_019_ Notions_avancees_de_visualisation",
+            "B3_M08_010_ Gestion_des_fichiers_en_Python",
+            "B3_M08_021_ Les_Requetes_HTTP",
+            "B3_M08_022_ Les_bases_de_donnees_relationnelles_et_Python",
+            "B3_M08_023_ Notion_d'ORM_(object-relational_mapping)",
+            "B3_M08_024_ Cadre_theorique_de_Flask",
+            "B3_M08_025_ Le_moteur_de_template_Jinja",
+            "B3_M08_026_ Deploiement_en_ligne_du_site_Flask",
+            "B3_M08_027_ Cadre_theorique_de_Django",
+            "B3_M08_028_ Les_modeles_en_Django",
+            "B3_M08_029_ Les_vues_en_Django",
+            "B3_M08_030_ API_REST_en_Python",
+            "B3_M08_031_ La_presentation_des_donnees_et_des_librairies",
+            "B3_M08_032_ La_librairie_numpy",
+            "B3_M08_033_ La_librairie_pandas _ premiere_approche",
+            "B3_M08_034_ Aller_plus_loin_avec_la_librairie_pandas",
+            "B3_M08_035_ La_librairie_matplotlib",
+            "B3_M08_036_ La_librairie_Seaborn",
+            "B3_M08_037_ La_librairie_Bokeh_et_Folium",
+            "B3_M08_038_ La_data_visualisation_avec_Streamlit",
+            "B3_M08_039_ Des_presentations_de_resultats_impactantes",
+            "B3_M08_040_ Application _ Developper_une_application_web_avec_Python",
+            "B3_M09_ Module _ Developper_une_application_mobile_avec_React_Native",
+            "B3_M09_001_ Le_developpement_Mobile",
+            "B3_M09_002_ Introduction_a_React_Native _ l'outil_Expo",
+            "B3_M09_003_ Les_bases_de_React_Native",
+            "B3_M09_004_ Les_composants_React_Native",
+            "B3_M09_005_ Les_props_et_les_states",
+            "B3_M09_006_ Style_et_mise_en_page_avec_Flexbox",
+            "B3_M09_007_ Du_code_different_en_fonction_de_la_plateforme",
+            "B3_M09_008_ L'utilisation_de_Redux",
+            "B3_M09_009_ Les_extensions_de_Redux",
+            "B3_M09_010_ L'organisation_d'une_application_React_Native",
+            "B3_M09_011_ La_navigation_avec_React_Native",
+            "B3_M09_012_ Les_differents_types_de_navigators",
+            "B3_M09_013_ L'animation_avec_React_Native",
+            "B3_M09_014_ Installer_les_emulateurs",
+            "B3_M09_015_ Utiliser_une_base_donnees_locale _ SQLITE",
+            "B3_M09_016_ Les_APIs_React_Native_et_modules_natifs",
+            "B3_M09_017_ Le_debugging",
+            "B3_M09_018_ Le_deploiement_d'une_application_sur_les_stores",
+            "B3_M09_019_ Creer_une_application_React_Native_sans_Expo",
+            "B3_M09_020_ Projet_-_Developper_une_application_mobile_avec_React_Native",
+            "B3_M10_ Module _ Concevoir_une_API",
+            "B3_M10_001_ Presentation_des_API",
+            "B3_M10_002_ Concevoir_une_API",
+            "B3_M10_003_ Gerer_les_acces_a_une_API",
+            "B3_M11_ Module _ Utiliser_des_API",
+            "B3_M11_001_ Les_API_d'authentification",
+            "B3_M11_002_ Les_API_Google_/_AWS",
+            "B3_M11_003_ Les_API_de_paiement",
+            "B3_M11_004_ Application _ Realiser_une_application_web",
+            "B3_M12_ Module _ Utiliser_un_outil_de_gestion_de_version_de_code_source",
+            "B3_M12_001_ Introduction_a_la_ligne_de_commande",
+            "B3_M12_002_ Introduction_a_Git_et_Github",
+            "B3_M12_003_ Les_bases",
+            "B3_M12_004_ Les_interactions_avec_le_depot_distant",
+            "B3_M12_005_ Naviguer_dans_l'historique",
+            "B3_M12_006_ La_gestion_des_branches",
+            "B3_M12_007_ Les_branches_avec_Git_-_Rebaser",
+            "B3_M12_008_ Les_bonnes_pratiques",
+            "B3_M12_009_ Projet_-_Utiliser_Git_et_Github_pour_gerer_son_code_source",
+            "B3_M12_010_ Introduction_a_Gitlab",
+            "B3_M13_ Module _ Maintenir_et_documenter_son_projet",
+            "B3_M13_001_ Ameliorer_sa_solution",
+            "B3_M13_002_ La_documentation_pour_l'utilisateur",
+            "B3_M13_003_ Le_pentest",
+            "B3_M13_004_ Gestion_de_la_dette_technique",
+            "B3_M13_005_ Documentation_de_l'architecture_et_du_code",
+            "B3_M13_006_ Application _ Versionner_et_ameliorer_sa_solution_en_continu"
+        ];
+
+        let courseData = {}; // Objet structuré des données du cours
+        let userData = {
+            userInfo: { // Informations personnelles de l'utilisateur
+                lastName: '',
+                firstName: '',
+                dob: '',
+                startDate: '',
+                endDate: '',
+                examDate: '',
+                resultsDate: ''
+            },
+            checkedThemes: {}, // État des cases à cocher pour chaque thème : { 'themeId': true/false }
+            progress: { // Pourcentages de progression
+                overall: 0,
+                blocks: { // Progression par bloc
+                    'B1': 0,
+                    'B2': 0,
+                    'B3': 0
+                },
+                modules: {} // Progression par module : { 'moduleId': percentage }
+            }
+        };
+
+        // --- Traitement des données du cours ---
+        /**
+         * Analyse les données brutes du cours pour créer un objet structuré.
+         * @param {string[]} rawData - Tableau de chaînes de caractères brutes du cours.
+         * @returns {object} Données du cours structurées.
+         */
+        function parseCourseData(rawData) {
+            const course = {};
+            let currentBlockId = null;
+            let currentModuleId = null;
+
+            rawData.forEach(line => {
+                line = line.trim();
+                // Ignore la ligne de titre général du programme
+                if (line === "Bachelor Développeur d'application Python 2022-2027") {
+                    return;
+                }
+
+                if (line.startsWith('B') && line.includes('_Bloc_')) {
+                    // C'est un titre de bloc
+                    const blockMatch = line.match(/^(B\d+)_Bloc_(.*)$/);
+                    if (blockMatch) {
+                        const blockId = blockMatch[1];
+                        const blockTitleRaw = blockMatch[2];
+                        const blockTitle = blockTitleRaw.replace(/_/g, ' ').trim();
+                        course[blockId] = {
+                            id: blockId,
+                            title: `Bloc ${blockId.substring(1)} : ${blockTitle}`,
+                            modules: {}
+                        };
+                        currentBlockId = blockId;
+                        currentModuleId = null; // Réinitialise le module pour un nouveau bloc
+                    }
+                } else if (line.startsWith('B') && line.includes('_M') && line.includes('_ Module _')) {
+                    // C'est un titre de module
+                    if (currentBlockId) {
+                        const moduleMatch = line.match(/^(B\d+_M\d+)_ Module _(.*)$/);
+                        if (moduleMatch) {
+                            const moduleId = moduleMatch[1];
+                            const moduleTitleRaw = moduleMatch[2];
+                            const moduleTitle = moduleTitleRaw.replace(/_/g, ' ').trim();
+                            course[currentBlockId].modules[moduleId] = {
+                                id: moduleId,
+                                title: `Module ${moduleId.substring(4)}: ${moduleTitle}`,
+                                themes: []
+                            };
+                            currentModuleId = moduleId;
+                        }
+                    }
+                } else if (line.startsWith('B') && line.includes('_M') && line.match(/_M\d{2}_\d{3}_/)) {
+                    // C'est un thème
+                    if (currentBlockId && currentModuleId) {
+                        const themeMatch = line.match(/^(B\d+_M\d+_\d{3}_)(.*)$/);
+                        if (themeMatch) {
+                            // L'ID du thème est la chaîne complète pour l'unicité
+                            const themeId = line;
+                            const themeTitleRaw = themeMatch[2];
+                            const themeTitle = themeTitleRaw.replace(/_/g, ' ').trim();
+                            course[currentBlockId].modules[currentModuleId].themes.push({
+                                id: themeId, // Utilise la chaîne originale complète comme ID unique
+                                title: themeTitle
+                            });
+                        }
+                    }
+                }
+            });
+            return course;
+        }
+
+        // --- Gestion du stockage local (localStorage) ---
+        /**
+         * Charge les données utilisateur depuis localStorage.
+         */
+        function loadData() {
+            try {
+                const storedData = localStorage.getItem('progressTrackerData');
+                if (storedData) {
+                    userData = JSON.parse(storedData);
+                    // Assure que tous les thèmes de courseData existent dans checkedThemes, les initialise si nouveaux
+                    Object.values(courseData).forEach(block => {
+                        Object.values(block.modules).forEach(module => {
+                            module.themes.forEach(theme => {
+                                if (userData.checkedThemes[theme.id] === undefined) {
+                                    userData.checkedThemes[theme.id] = false; // Par défaut, non coché
+                                }
+                            });
+                        });
+                    });
+                }
+            } catch (e) {
+                console.error("Erreur lors du chargement des données depuis localStorage:", e);
+            }
+        }
+
+        /**
+         * Sauvegarde les données utilisateur dans localStorage.
+         */
+        function saveData() {
+            try {
+                localStorage.setItem('progressTrackerData', JSON.stringify(userData));
+            } catch (e) {
+                console.error("Erreur lors de la sauvegarde des données vers localStorage:", e);
+            }
+        }
+
+        // --- Calcul de la progression ---
+        /**
+         * Calcule et met à jour tous les pourcentages de progression.
+         */
+        function calculateProgress() {
+            let totalThemes = 0;
+            let checkedTotalThemes = 0;
+
+            // Initialise la progression des blocs et modules à 0
+            Object.keys(courseData).forEach(blockId => {
+                userData.progress.blocks[blockId] = 0;
+                Object.keys(courseData[blockId].modules).forEach(moduleId => {
+                    userData.progress.modules[moduleId] = 0;
+                });
+            });
+
+            Object.values(courseData).forEach(block => {
+                let blockThemesCount = 0;
+                let blockCheckedThemesCount = 0;
+
+                Object.values(block.modules).forEach(module => {
+                    const moduleThemesCount = module.themes.length;
+                    let moduleCheckedThemesCount = 0;
+
+                    module.themes.forEach(theme => {
+                        totalThemes++;
+                        blockThemesCount++;
+                        if (userData.checkedThemes[theme.id]) {
+                            checkedTotalThemes++;
+                            moduleCheckedThemesCount++;
+                            blockCheckedThemesCount++;
+                        }
+                    });
+
+                    // Calcule la progression du module
+                    userData.progress.modules[module.id] = moduleThemesCount > 0 ?
+                        Math.round((moduleCheckedThemesCount / moduleThemesCount) * 100) : 0;
+                });
+
+                // Calcule la progression du bloc
+                userData.progress.blocks[block.id] = blockThemesCount > 0 ?
+                    Math.round((blockCheckedThemesCount / blockThemesCount) * 100) : 0;
+            });
+
+            // Calcule la progression globale
+            userData.progress.overall = totalThemes > 0 ?
+                Math.round((checkedTotalThemes / totalThemes) * 100) : 0;
+
+            updateProgressBars(); // Met à jour l'affichage des barres de progression
+        }
+
+        /**
+         * Met à jour l'affichage visuel de toutes les barres de progression.
+         */
+        function updateProgressBars() {
+            // Progression globale
+            const overallProgressBar = document.getElementById('overall-progress-bar');
+            const overallProgressText = document.getElementById('overall-progress-text');
+            if (overallProgressBar && overallProgressText) {
+                overallProgressBar.style.width = `${userData.progress.overall}%`;
+                overallProgressText.textContent = `${userData.progress.overall}%`;
+            }
+
+            // Progression globale par bloc sur la page d'accueil
+            const blockOverallProgressDiv = document.getElementById('block-overall-progress');
+            if (blockOverallProgressDiv) {
+                blockOverallProgressDiv.innerHTML = ''; // Efface le contenu précédent
+                Object.values(courseData).forEach(block => {
+                    const blockProgress = userData.progress.blocks[block.id] || 0;
+                    const blockItem = document.createElement('div');
+                    blockItem.classList.add('block-item');
+                    blockItem.innerHTML = `
+                        <span>${block.title.split(':')[0]} :</span>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${blockProgress}%;"></div>
+                            <span class="progress-text">${blockProgress}%</span>
+                        </div>
+                    `;
+                    blockOverallProgressDiv.appendChild(blockItem);
+                });
+            }
+
+            // Progression des modules et du bloc sur les pages de bloc
+            Object.values(courseData).forEach(block => {
+                Object.values(block.modules).forEach(module => {
+                    const moduleProgressBar = document.getElementById(`module-${module.id}-progress-bar`);
+                    const moduleProgressText = document.getElementById(`module-${module.id}-progress-text`);
+                    if (moduleProgressBar && moduleProgressText) {
+                        const progress = userData.progress.modules[module.id] || 0;
+                        moduleProgressBar.style.width = `${progress}%`;
+                        moduleProgressText.textContent = `${progress}%`;
+                    }
+                });
+
+                const blockTotalProgressBar = document.getElementById(`block-${block.id}-total-progress-bar`);
+                const blockTotalProgressText = document.getElementById(`block-${block.id}-total-progress-text`);
+                if (blockTotalProgressBar && blockTotalProgressText) {
+                    const progress = userData.progress.blocks[block.id] || 0;
+                    blockTotalProgressBar.style.width = `${progress}%`;
+                    blockTotalProgressText.textContent = `${progress}%`;
+                }
+            });
+        }
+
+
+        // --- Fonctions de rendu DOM ---
+        /**
+         * Rend le contenu de la page d'accueil.
+         */
+        function renderHomePage() {
+            const form = document.getElementById('user-info-form');
+            if (!form) return;
+
+            // Remplit les champs du formulaire avec les données utilisateur
+            document.getElementById('lastName').value = userData.userInfo.lastName;
+            document.getElementById('firstName').value = userData.userInfo.firstName;
+            document.getElementById('dob').value = userData.userInfo.dob;
+            document.getElementById('startDate').value = userData.userInfo.startDate;
+            document.getElementById('endDate').value = userData.userInfo.endDate;
+            document.getElementById('examDate').value = userData.userInfo.examDate;
+            document.getElementById('resultsDate').value = userData.userInfo.resultsDate;
+
+            // Ajoute des écouteurs d'événements pour les changements dans les champs du formulaire
+            form.querySelectorAll('input').forEach(input => {
+                input.onchange = (event) => {
+                    userData.userInfo[event.target.id] = event.target.value;
+                    saveData();
+                };
+            });
+
+            updateProgressBars(); // Assure que les barres de progression sont à jour sur la page d'accueil
+        }
+
+        /**
+         * Rend le contenu d'une page de bloc spécifique.
+         * @param {string} blockId - L'ID du bloc à rendre (ex: 'B1').
+         */
+        function renderBlockPage(blockId) {
+            const blockContentDiv = document.getElementById(`${blockId}-content`);
+            if (!blockContentDiv) return;
+
+            const block = courseData[blockId];
+            if (!block) {
+                blockContentDiv.innerHTML = `<p>Contenu du bloc ${blockId} non trouvé.</p>`;
+                return;
+            }
+
+            let html = `
+                <h2>${block.title}</h2>
+            `;
+
+            Object.values(block.modules).forEach(module => {
+                html += `
+                    <div class="module-section">
+                        <h4>
+                            ${module.title}
+                            <span id="module-${module.id}-progress-text" class="module-progress-text">0%</span>
+                        </h4>
+                        <div class="progress-container module-progress-bar-container">
+                            <div id="module-${module.id}-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                        <ul class="theme-list">
+                `;
+                module.themes.forEach(theme => {
+                    // Utilise le theme.id complet pour l'attribut data-theme-id et pour la vérification
+                    const isChecked = userData.checkedThemes[theme.id] ? 'checked' : '';
+                    // L'ID HTML doit être unique et valide, donc on le préfixe
+                    const htmlId = `theme-${theme.id.replace(/[^a-zA-Z0-9-_]/g, '')}`; // Nettoie l'ID pour l'HTML
+                    html += `
+                        <li>
+                            <input type="checkbox" id="${htmlId}" data-theme-id="${theme.id}" ${isChecked}>
+                            <label for="${htmlId}">${theme.title}</label>
+                        </li>
+                    `;
+                });
+                html += `
+                        </ul>
+                    </div>
+                `;
+            });
+
+            html += `
+                <h3>Progression Totale du Bloc ${blockId.substring(1)} :</h3>
+                <div class="progress-container">
+                    <div id="block-${blockId}-total-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                    <span id="block-${blockId}-total-progress-text" class="progress-text">0%</span>
+                </div>
+            `;
+
+            blockContentDiv.innerHTML = html;
+
+            // Ajoute des écouteurs d'événements aux cases à cocher après qu'elles soient dans le DOM
+            blockContentDiv.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.onchange = (event) => {
+                    const themeId = event.target.dataset.themeId; // Récupère l'ID du thème original
+                    userData.checkedThemes[themeId] = event.target.checked;
+                    saveData();
+                    calculateProgress(); // Recalcule et met à jour toutes les barres de progression
+                };
+            });
+
+            updateProgressBars(); // Assure que les barres de progression sont à jour pour ce bloc spécifique
+        }
+
+        // --- Logique de changement d'onglet et initialisation ---
+        /**
+         * Change l'onglet actif et rend le contenu correspondant.
+         * @param {string} tabName - Le nom de l'onglet à activer ('home', 'B1', 'B2', 'B3').
+         */
+        function switchTab(tabName) {
+            // Cache tous les contenus d'onglet
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Désactive tous les boutons d'onglet
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Affiche le contenu de l'onglet sélectionné
+            const selectedContent = document.getElementById(`${tabName}-content`);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+            }
+
+            // Active le bouton d'onglet sélectionné
+            const selectedButton = document.querySelector(`.tab-button[data-tab="${tabName}"]`);
+            if (selectedButton) {
+                selectedButton.classList.add('active');
+            }
+
+            // Rend le contenu en fonction de l'onglet
+            if (tabName === 'home') {
+                renderHomePage();
+            } else if (tabName === 'B1' || tabName === 'B2' || tabName === 'B3') {
+                renderBlockPage(tabName);
+            }
+        }
+
+        // --- Initialisation de l'application ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Analyse les données du cours une seule fois au chargement
+            courseData = parseCourseData(rawCourseData);
+
+            // 2. Charge les données utilisateur (ou les initialise si c'est la première fois)
+            loadData();
+
+            // 3. Calcule la progression initiale
+            calculateProgress();
+
+            // 4. Configure les écouteurs d'événements pour les boutons d'onglet
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const tab = event.target.dataset.tab;
+                    switchTab(tab);
+                });
+            });
+
+            // 5. Affiche l'onglet d'accueil par défaut au démarrage
+            switchTab('home');
+        });
+    </script>
+</body>
+</html>
